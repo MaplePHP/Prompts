@@ -107,7 +107,7 @@ class Ansi
      * This function will tell if terminal support ANSI
      * @return bool
      */
-    public static function isSupported(): bool
+    final public static function isSupported(): bool
     {
         if (is_null(self::$hasAnsi)) {
             if (stripos(PHP_OS, 'WIN') === 0) {
