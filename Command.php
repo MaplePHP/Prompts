@@ -159,22 +159,4 @@ class Command
         $this->confirm($message);
         return false;
     }
-
-    /**
-     * Check if terminal is modern (Not foolproof)
-     * This function will tell if terminal support ANSI
-     * @return bool
-     */
-    public function modernTerminal(): bool
-    {
-        if (stripos(PHP_OS, 'WIN') === 0) {
-            $osVersion = php_uname('v');
-            if (preg_match('/build (\d+)/i', $osVersion, $matches)) {
-                $buildNumber = (int)$matches[1];
-                return ($buildNumber >= 10586);
-            }
-        } else {
-            return (getenv('TERM') && strpos(getenv('TERM'), 'xterm') !== false);
-        }
-    }
 }
