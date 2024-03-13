@@ -159,4 +159,50 @@ class Command
         $this->confirm($message);
         return false;
     }
+    
+    /**
+     * Create a progress bar
+     * @param  int           $expectedRows The maximum expected row you are expected
+     * @param  int|integer   $maxLength    The maximum bra length
+     * @param  callable|null $sleep        int for sleep in milliseconds (3000 ms = 1 second) and 
+     *                                     callaback with returned int for sleep in milliseconds
+     * @return void
+     */
+    public function progress(int $expectedRows, int $maxLength = 100, null|int|callable $sleep = null): void
+    {
+        $i = 0;
+        $char = "-";
+        $ratio = ($maxLength > $expectedRows) ? $expectedRows/$maxLength : $maxLength/$expectedRows;
+        $length = ($maxLength-0.5) * $ratio;
+        $inc = round($ratio, 4);
+        while ($i < $length) {
+            if (is_callable($sleep)) {
+                $sleep = $sleep($i, $length);
+            }
+            if (is_int($sleep)) {
+                usleep($sleep*1000);
+            }
+            $this->stream->write($this->progAppear($char, $i, $length));
+            $i+=$inc;
+        }
+        $this->stream->write("\n");
+    }
+
+    /**
+     * Progress appearance
+     * @param  string   $char
+     * @param  int      $length
+     * @return string
+     */
+    private function progAppear($char, $i, $length): string
+    {
+        $dot = $this->getAnsi()->red($char);
+        if ($i > ($length*0.7)) {
+            $dot = $this->getAnsi()->green($char);
+
+        } else if ($i > ($length*0.3)) {
+            $dot = $this->getAnsi()->yellow($char);
+        }
+        return $this->getAnsi()->bold($dot);
+    }
 }

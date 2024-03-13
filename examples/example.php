@@ -11,6 +11,7 @@ require_once("{$dir}/Command.php");
 require_once("{$dir}/Prompt.php");
 
 use MaplePHP\Prompts\Prompt;
+use MaplePHP\Prompts\Command;
 $inp = new Prompt();
 
 $inp->set([
@@ -83,5 +84,14 @@ $inp->set([
         ]
     ]
 ]);
-var_dump($inp->prompt());
+
+
+$prompt = $inp->prompt();
+
+$Command = new Command();
+$Command->progress(1, 100, function($i, $length) {
+    return 20;
+});
+
+print_r($prompt);
 

@@ -16,6 +16,10 @@ class Prompt
         $this->command = new Command();
     }
 
+    public function getCommand() {
+        return $this->command;
+    }
+
     /**
      * Add a line to be prompted
      * @param string $name Name the line
