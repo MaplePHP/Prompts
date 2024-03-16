@@ -3,17 +3,26 @@
 namespace MaplePHP\Prompts;
 
 use MaplePHP\Http\Stream;
+use MaplePHP\Prompts\SttyWrapper;
 use MaplePHP\Prompts\Ansi;
 use InvalidArgumentException;
 
 class Command
 {
     private $stream;
+    private $stty;
     private $ansi;
+
+    const NAV = [
+        '\033[A' => 'up',
+        '\033[B' => 'down',
+        '\n' => 'enter'
+    ];
 
     public function __construct()
     {
         $this->stream = new Stream(Stream::STDIN, "r");
+        $this->stty = new SttyWrapper();
         $this->ansi = new Ansi();
     }
 
@@ -119,22 +128,19 @@ class Command
      */
     public function mask(string $message): string
     {
-        if (function_exists("shell_exec")) {
+        if (function_exists("system")) {
             $this->stream->write("{$message} (masked input): ");
-            // Mask input
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
                 // Not yet tested. But should work if my research is right
-                $input = rtrim((string)shell_exec("powershell -Command \$input = Read-Host -AsSecureString; [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(\$input))"));
+                $input = rtrim((string)system("powershell -Command \$input = Read-Host -AsSecureString; [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(\$input))"));
             } else {
-                // Tested and works
-                $input = rtrim((string)shell_exec('stty -echo; read input; stty echo; echo $input'));
+                $input = rtrim(system($this->stty->maskInput()));
             }
 
             $this->stream->write("\n");
             return $input;
         }
-
-        $this->message("Warning: The input will not be mask. The PHP function \"exec\" is disabled.");
+        $this->message("Warning: The input will not be mask. The PHP function \"system\" is disabled.");
         return $this->message($message, true);
     }
 
@@ -205,4 +211,55 @@ class Command
         }
         return $this->getAnsi()->bold($dot);
     }
+
+
+    
+
+    // MENU
+    function showMenu($options, $selectedIndex, $initial = true) {
+        $this->stream->write("Use arrow keys to navigate and press Enter to select.\n\n");
+        foreach ($options as $index => $option) {
+            if ($index === $selectedIndex) {
+                $this->stream->write("\033[1;33m[\xE2\x9C\x94] $option (selected)\033[0m\n");
+            } else {
+                $this->stream->write("[ ] $option\n");
+            }
+        }
+    }
+
+    function clearCanvas(int $lines): void
+    {
+        // Move the cursor up to the start
+        $this->stream->write($this->ansi->moveCursorTo($lines));
+        for ($i = 0; $i < $lines; $i++) {
+            $this->stream->write($this->ansi->clearDown());
+        }
+        // Move the cursor "back" up to the start
+        $this->stream->write($this->ansi->moveCursorTo($lines));
+    }
+
+    function tetst($options, $selectedIndex) {
+        $this->showMenu($options, $selectedIndex);
+        while (true) {
+            $input = $this->stream->read(3);
+            $key = (self::NAV[$input] ?? $input);
+
+            if ($input == "\033[A") {
+                // Up arrow
+                $selectedIndex = max(0, $selectedIndex - 1);
+            } elseif ($input == "\033[B") {
+                // Down arrow
+                $selectedIndex = min(count($options) - 1, $selectedIndex + 1);
+            } elseif ($input == "\n") {
+                // Enter key, break the loop
+                break;
+            }
+
+            $lines = count($options) + 2;
+            $this->clearCanvas($lines);
+            $this->showMenu($options, $selectedIndex, false);
+        }
+
+    }
+
 }

@@ -8,20 +8,7 @@ class Ansi
 {
     private static $hasAnsi;
 
-    /**
-     * Set a custom ansi style
-     * @param  int     $ansiNum
-     * @param  string  $message
-     * @return string
-     */
-    public function ansiStyle(int $ansiNum, string $message): string
-    {
-        if (self::isSupported()) {
-            return "\033[{$ansiNum}m{$message}\033[0m";
-        }
-        return $message;
-    }
-    
+
     /**
      * Set one or more styles
      * @param  string|array  $styles
@@ -38,6 +25,20 @@ class Ansi
                 throw new InvalidArgumentException("The style {$style} does not exit!", 1);
             }
             $message = $this->{$style}($message);
+        }
+        return $message;
+    }
+
+    /**
+     * Set a custom ansi style
+     * @param  int     $ansiNum
+     * @param  string  $message
+     * @return string
+     */
+    public function ansiStyle(int $ansiNum, string $message): string
+    {
+        if (self::isSupported()) {
+            return "\033[{$ansiNum}m{$message}\033[0m";
         }
         return $message;
     }
@@ -100,6 +101,43 @@ class Ansi
     public function blue(string $message): string
     {
         return $this->ansiStyle(34, $message);
+    }
+
+    /**
+     * Clear line and move down
+     * @return string
+     */
+    public function clearDown(): string
+    {
+        return $this->clearLine().$this->cursorDown();
+    }
+
+    /**
+     * Clear line
+     * @return string
+     */
+    public function clearLine(): string
+    {
+        return "\033[2K";
+    }
+
+    /**
+     * Move cursor to
+     * @param  int    $line
+     * @return string
+     */
+    public function moveCursorTo(int $line): string
+    {
+        return "\033[{$line}A";
+    }
+
+    /**
+     * Move cursom down
+     * @return string
+     */
+    public function cursorDown(): string
+    {
+        return "\033[1B";
     }
 
     /**

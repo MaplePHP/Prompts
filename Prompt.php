@@ -102,7 +102,7 @@ class Prompt
         if ($this->isEmpty($input)) {
             $input = $default;
         }
-
+        
         if (!$this->validateItems($validate, $input, $errorType)) {
             if (is_string($error) && $error !== "") {
                 $this->command->message($this->command->getAnsi()->red($error));
@@ -157,19 +157,31 @@ class Prompt
      * @param  array  $input
      * @return bool
      */
-    protected function validateItems(array $validate, string|array $input, &$error = array()): bool
+    protected function validateItems(array|callable $validate, string|array $input, &$error = array()): bool
     {
         if (is_string($input)) {
             $input = array($input);
         }
         foreach ($input as $value) {
-            foreach ($validate as $method => $args) {
-                if (!is_array($args)) {
-                    $args = array();
+
+            if (is_callable($validate)) {
+                $bool = $validate($value);
+                if (!is_bool($bool)) {
+                    throw new InvalidArgumentException("You callable validate function has to return a boolean type!", 1);
                 }
-                if (!$this->validate($value, $method, $args)) {
-                    $error = $method;
+                if ($bool) {
                     return false;
+                }
+
+            } else {
+                foreach ($validate as $method => $args) {
+                    if (!is_array($args)) {
+                        $args = array();
+                    }
+                    if (!$this->validate($value, $method, $args)) {
+                        $error = $method;
+                        return false;
+                    }
                 }
             }
         }
