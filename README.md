@@ -127,32 +127,6 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
     print_r($prompt); 
     ```
 
-### Detailed Explanation of Prompts
-
-- **Text Prompt**
-  - **firstname**: Requires a non-empty string with a maximum length of 200 characters.
-  - **lastname**: Requires a string with at least 3 characters, default value "Doe".
-
-- **Email Prompt**
-  - **email**: Requires a valid email address with a maximum length of 200 characters.
-
-- **Toggle Prompt**
-  - **ssl**: Asks the user if they want SSL enabled (yes/no).
-
-- **Message Prompt**
-  - **message**: Displays a message "Lorem ipsum dolor".
-
-- **Select Prompt**
-  - **select**: Provides a list of items for the user to select from.
-
-- **List Prompt**
-  - **keyword**: Prompts for a comma-separated list of keywords, each must be a number with a maximum length of 200 characters.
-
-- **Password Prompt**
-  - **password**: Requires a non-empty password with a maximum length of 200 characters.
-
-- **Confirm Prompt**
-  - **confirm**: Asks the user for confirmation before continuing.
 
 ## Available Options
 
