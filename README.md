@@ -286,9 +286,7 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
      ```php
      "confirm" => [
          "type" => "confirm",
-         "message
-
-" => "Do you wish to continue?"
+         "message" => "Do you wish to continue?"
      ]
      ```
 
