@@ -4,25 +4,35 @@ namespace MaplePHP\Prompts;
 
 use InvalidArgumentException;
 
+/**
+ * Class Ansi
+ * @package MaplePHP\Prompts
+ */
 class Ansi
 {
-    private static $hasAnsi;
+    public const NAV = [
+        '\033[A' => 'up',
+        '\033[B' => 'down',
+        '\n' => 'enter'
+    ];
 
+    private static ?bool $hasAnsi = null;
 
     /**
      * Set one or more styles
-     * @param  string|array  $styles
-     * @param  string        $message
+     * 
+     * @param string|array $styles
+     * @param string $message
      * @return string
      */
     public function style(string|array $styles, string $message): string
     {
         if (is_string($styles)) {
-            $styles = array($styles);
+            $styles = [$styles];
         }
         foreach ($styles as $style) {
             if (!method_exists($this, $style)) {
-                throw new InvalidArgumentException("The style {$style} does not exit!", 1);
+                throw new InvalidArgumentException("The style {$style} does not exist!", 1);
             }
             $message = $this->{$style}($message);
         }
@@ -31,8 +41,9 @@ class Ansi
 
     /**
      * Set a custom ansi style
-     * @param  int     $ansiNum
-     * @param  string  $message
+     * 
+     * @param int $ansiNum
+     * @param string $message
      * @return string
      */
     public function ansiStyle(int $ansiNum, string $message): string
@@ -45,7 +56,8 @@ class Ansi
 
     /**
      * Bold input
-     * @param  string $message
+     * 
+     * @param string $message
      * @return string
      */
     public function bold(string $message): string
@@ -55,7 +67,8 @@ class Ansi
 
     /**
      * Italic input
-     * @param  string $message
+     * 
+     * @param string $message
      * @return string
      */
     public function italic(string $message): string
@@ -64,8 +77,9 @@ class Ansi
     }
 
     /**
-     * Read input
-     * @param  string $message
+     * Red input color
+     * 
+     * @param string $message
      * @return string
      */
     public function red(string $message): string
@@ -75,7 +89,8 @@ class Ansi
 
     /**
      * Green input color
-     * @param  string $message
+     * 
+     * @param string $message
      * @return string
      */
     public function green(string $message): string
@@ -85,7 +100,8 @@ class Ansi
 
     /**
      * Yellow input color
-     * @param  string $message
+     * 
+     * @param string $message
      * @return string
      */
     public function yellow(string $message): string
@@ -95,7 +111,8 @@ class Ansi
 
     /**
      * Blue input color
-     * @param  string $message
+     * 
+     * @param string $message
      * @return string
      */
     public function blue(string $message): string
@@ -104,16 +121,29 @@ class Ansi
     }
 
     /**
+     * Style selected item
+     * 
+     * @param string $message
+     * @return string
+     */
+    public function selectedItem(string $message): string
+    {
+        return $this->style(['blue', 'bold'], $message);
+    }
+    
+    /**
      * Clear line and move down
+     * 
      * @return string
      */
     public function clearDown(): string
     {
-        return $this->clearLine().$this->cursorDown();
+        return $this->clearLine() . $this->cursorDown();
     }
 
     /**
      * Clear line
+     * 
      * @return string
      */
     public function clearLine(): string
@@ -122,8 +152,9 @@ class Ansi
     }
 
     /**
-     * Move cursor to
-     * @param  int    $line
+     * Move cursor to specified line
+     * 
+     * @param int $line
      * @return string
      */
     public function moveCursorTo(int $line): string
@@ -132,7 +163,8 @@ class Ansi
     }
 
     /**
-     * Move cursom down
+     * Move cursor down
+     * 
      * @return string
      */
     public function cursorDown(): string
@@ -141,8 +173,59 @@ class Ansi
     }
 
     /**
+     * Arrow up key
+     * 
+     * @return string
+     */
+    public function keyUp(): string 
+    {
+        return "\033[A";
+    }
+
+    /**
+     * Arrow down key
+     * 
+     * @return string
+     */
+    public function keyDown(): string 
+    {
+        return "\033[B";
+    }
+
+    /**
+     * Enter key
+     * 
+     * @return string
+     */
+    public function keyEnter(): string 
+    {
+        return "\n";
+    }
+
+    /**
+     * Escape key
+     * 
+     * @return string
+     */
+    public function keyEscape(): string 
+    {
+        return "\033";
+    }
+
+    /**
+     * Symbol: checkbox
+     * 
+     * @return string
+     */
+    public function checkbox(): string 
+    {
+        return "\xE2\x9C\x94";
+    }
+
+    /**
      * Check if terminal is modern (Not foolproof)
      * This function will tell if terminal support ANSI
+     * 
      * @return bool
      */
     final public static function isSupported(): bool

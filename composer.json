@@ -1,8 +1,8 @@
 {
     "name": "maplephp/prompts",
     "type": "library",
-    "description": "PHP Prompts is a lightweight and very easy to CLI (Command Line Interface) PHP library. ",
-    "keywords": ["php", "cli", "command line", "prompt", "lightweight"],
+    "description": "PHP Prompts is an interactive, lightweight and very easy to CLI (Command Line Interface) PHP library.",
+    "keywords": ["php", "cli", "command line", "prompt", "lightweight", "cross-platform"],
     "homepage": "https://wazabii.se",
     "license": "Apache-2.0",
     "authors": [
@@ -17,6 +17,7 @@
     ],
     "require": {
         "php": ">=8.0",
+        "maplephp/dto": "^1.0",
         "maplephp/http": "^1.0",
         "maplephp/validate": "^1.0"
     },
