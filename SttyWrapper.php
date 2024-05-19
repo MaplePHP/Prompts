@@ -1,19 +1,24 @@
 <?php
 
 namespace MaplePHP\Prompts;
+
 use InvalidArgumentException;
 
+/**
+ * Class SttyWrapper
+ * @package MaplePHP\Prompts
+ */
 class SttyWrapper
 {
-    
-    protected $command = array();
+    protected array $command = [];
 
     public function __construct()
     {
     }
-    
+
     /**
      * Get command as string
+     * 
      * @return string
      */
     public function __toString(): string
@@ -23,6 +28,7 @@ class SttyWrapper
 
     /**
      * Get command as string
+     * 
      * @return string
      */
     public function get(): string
@@ -31,8 +37,9 @@ class SttyWrapper
     }
 
     /**
-     * Msking input
-     * @return [type] [description]
+     * Masking input
+     * 
+     * @return self
      */
     public function maskInput(): self
     {
@@ -41,8 +48,9 @@ class SttyWrapper
 
     /**
      * Turn on/off output stream
-     * @param  bool   $bool
-     * @return static
+     * 
+     * @param bool $bool
+     * @return self
      */
     public function toggleEcho(bool $bool): self
     {        
@@ -50,9 +58,10 @@ class SttyWrapper
     }
 
     /**
-     * Toggle character break
-     * @param  bool   $bool
-     * @return static
+     * Toggle character break mode
+     * 
+     * @param bool $bool
+     * @return self
      */
     public function toggleCharBreakMode(bool $bool): self
     {        
@@ -61,28 +70,31 @@ class SttyWrapper
 
     /**
      * Will listen to the input
-     * @return static
+     * 
+     * @return self
      */
     public function readInput(): self
     {
         return $this->raw('read input');
     }
 
-
     /**
      * Toggle a custom command on/off
-     * @param  bool   $bool
-     * @param  string $command
-     * @return static
+     * 
+     * @param bool $bool
+     * @param string $command
+     * @return self
      */
     public function toggleEnable(bool $bool, string $command): self
     {
-        return $this->raw(('stty '.(!$bool ? '-' : '').$command));
+        return $this->raw('stty ' . (!$bool ? '-' : '') . $command);
     }
 
     /**
-     * Will listen to the input
-     * @return static
+     * Execute a raw command
+     * 
+     * @param string $input
+     * @return self
      */
     public function raw(string $input): self
     {
@@ -92,10 +104,11 @@ class SttyWrapper
     }
 
     /**
-     * Check if is a Unix supported OS
+     * Check if the OS is Unix-based
+     * 
      * @return bool
      */
-    function isUnix(): bool
+    public function isUnix(): bool
     {
         $os = php_uname('s');
         $supportedOSes = ['Linux', 'Unix', 'Darwin'];
@@ -109,9 +122,10 @@ class SttyWrapper
 
     /**
      * Check if stty is supported
+     * 
      * @return bool
      */
-    function hasSttySupport(): bool
+    public function hasSttySupport(): bool
     {
         // Make sure it really is installed
         // Can be absent on specialized UNIX environments (e.g. minimalistic or embedded system)

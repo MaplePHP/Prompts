@@ -8,22 +8,59 @@ use InvalidArgumentException;
 
 class Prompt
 {
-    private $command;
-    private $data;
+    private Command $command;
+    private array $data = [];
+    private ?string $title = null;
+    private ?string $description = null;
+    private string $helperText = 'Exit the prompt with [CTRL + C]';
 
     public function __construct()
     {
         $this->command = new Command();
     }
 
-    public function getCommand() {
+    public function getCommand(): Command
+    {
         return $this->command;
     }
 
     /**
+     * Set prompt title (headline)
+     * @param string $title
+     * @return self
+     */
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * Set prompt description
+     * @param string $description
+     * @return self
+     */
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * Set prompt helper text
+     * @param string $text
+     * @return self
+     */
+    public function setHelperText(string $text): self
+    {
+        $this->helperText = $text;
+        return $this;
+    }
+
+    /**
      * Add a line to be prompted
-     * @param string $name Name the line
-     * @param array  $data Prompt data to validate against
+     * @param array $data Prompt data to validate against
+     * @return self
      */
     public function set(array $data): self
     {
@@ -34,7 +71,8 @@ class Prompt
     /**
      * Add a line to be prompted
      * @param string $name Name the line
-     * @param array  $data Prompt data to validate against
+     * @param array $data Prompt data to validate against
+     * @return self
      */
     public function add(string $name, array $data): self
     {
@@ -44,17 +82,18 @@ class Prompt
 
     /**
      * Prompt line, directly prompt line without data
-     * @param  array  $row
+     * @param array $row
      * @return mixed
      */
     public function promptLine(array $row): mixed
     {
         $input = false;
-        $default = ($row['default'] ?? "");
-        $validate = ($row['validate'] ?? []);
-        $message = ($row['message'] ?? "");
-        $error = ($row['error'] ?? false);
-        $items = ($row['items'] ?? []);
+        $default = $row['default'] ?? "";
+        $validate = $row['validate'] ?? [];
+        $message = $row['message'] ?? "";
+        $error = $row['error'] ?? false;
+        $items = $row['items'] ?? [];
+        $rowType = $row['type'] ?? "text";
 
         if (!empty($default) && is_string($default)) {
             $message .= " ({$default})";
@@ -64,7 +103,7 @@ class Prompt
             throw new InvalidArgumentException("The message cannot be empty!", 1);
         }
 
-        switch ($row['type'] ?? "text") {
+        switch ($rowType) {
             case "message":
                 $input = $this->command->message($message);
                 break;
@@ -74,7 +113,7 @@ class Prompt
             case "invisible":
             case "mask":
             case "password":
-                    $input = $this->command->mask($message);
+                $input = $this->command->mask($message);
                 break;
             case "list":
                 $input = $this->command->list($message);
@@ -86,7 +125,7 @@ class Prompt
                 $input = $this->command->toggle($message);
                 break;
             case "confirm":
-                $input = (int)$this->command->confirm($message);
+                $input = (int) $this->command->confirm($message);
                 if (!$input) {
                     $this->command->message($this->command->getAnsi()->style(["red", "bold"], "Aborted..."));
                     return false;
@@ -106,8 +145,7 @@ class Prompt
         if (!$this->validateItems($validate, $input, $errorType)) {
             if (is_string($error) && $error !== "") {
                 $this->command->message($this->command->getAnsi()->red($error));
-            }
-            if (is_callable($error)) {
+            } elseif (is_callable($error)) {
                 $errorMsg = $error($errorType, $input, $row);
                 if (!is_string($errorMsg)) {
                     throw new InvalidArgumentException("The error callable has to return a string!", 1);
@@ -120,12 +158,13 @@ class Prompt
     }
 
     /**
-     * prompt output and get result as array or false if aborted
+     * Prompt output and get result as array or false if aborted
      * @return array|false
      */
     public function prompt(): array|false
     {
-        $result = array();
+        $result = [];
+        $this->getHeaderInfo();
         foreach ($this->data as $name => $row) {
             $input = $this->promptLine($row);
             if ($input === false) {
@@ -134,16 +173,35 @@ class Prompt
             if (($row['type'] ?? "text") !== "message") {
                 $result[$name] = $input;
             }
-
             unset($this->data[$name]);
         }
-
         return $result;
+    }
+
+    /**
+     * Prompt header information
+     * @return void
+     */
+    protected function getHeaderInfo(): void 
+    {
+        $this->command->message("\n" . $this->command->getAnsi()->italic($this->helperText . "\n"));
+
+        if (is_string($this->title)) {
+            $this->command->message($this->command->getAnsi()->bold($this->title));
+        }
+
+        if (is_string($this->description)) {
+            $this->command->message($this->description);
+        }
+
+        if (is_string($this->title) || is_string($this->description)) {
+            $this->command->message("");
+        }
     }
     
     /**
-     * Cehck if empty
-     * @param  mixed  $input
+     * Check if input is empty
+     * @param mixed $input
      * @return bool
      */
     protected function isEmpty($input): bool
@@ -153,31 +211,26 @@ class Prompt
 
     /**
      * Validate a set of items
-     * @param  array  $validate
-     * @param  array  $input
+     * @param array|callable $validate
+     * @param string|array $input
+     * @param array $error
      * @return bool
      */
-    protected function validateItems(array|callable $validate, string|array $input, &$error = array()): bool
+    protected function validateItems(array|callable $validate, string|array $input, &$error = []): bool
     {
-        if (is_string($input)) {
-            $input = array($input);
-        }
+        $input = is_string($input) ? [$input] : $input;
         foreach ($input as $value) {
-
             if (is_callable($validate)) {
-                $bool = $validate($value);
-                if (!is_bool($bool)) {
-                    throw new InvalidArgumentException("You callable validate function has to return a boolean type!", 1);
+                $isValid = $validate($value);
+                if (!is_bool($isValid)) {
+                    throw new InvalidArgumentException("The callable validate function must return a boolean!", 1);
                 }
-                if ($bool) {
+                if ($isValid) {
                     return false;
                 }
-
             } else {
                 foreach ($validate as $method => $args) {
-                    if (!is_array($args)) {
-                        $args = array();
-                    }
+                    $args = is_array($args) ? $args : [];
                     if (!$this->validate($value, $method, $args)) {
                         $error = $method;
                         return false;
@@ -190,13 +243,16 @@ class Prompt
 
     /**
      * Validate input
+     * @param string $value
+     * @param string $method
+     * @param array $args
      * @return bool
      */
     final protected function validate(string $value, string $method, array $args = []): bool
     {
         $inp = new Inp($value);
         if (!method_exists($inp, $method)) {
-            throw new InvalidArgumentException("The validation do not exists", 1);
+            throw new InvalidArgumentException("The validation method does not exist", 1);
         }
         return call_user_func_array([$inp, $method], $args);
     }
