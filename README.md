@@ -24,7 +24,7 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
 
 ### Step-by-Step Guide
 
-1. **Initialize the Command and Prompt Objects**
+1. **Initialize**
 
     ```php
     $prompt = new MaplePHP\Prompts\Prompt();
