@@ -8,8 +8,7 @@ PHP Prompts is an interactive, lightweight, and easy-to-use CLI (Command Line In
 - [Available Options](#available-options)
 - [Available Prompt Types](#available-prompt-types)
 - [Progress Bar](#progress-bar)
-- [Validation](#validation)
-- [Conclusion](#conclusion)
+- [Validation](#validation-and-error-handling)
 
 ## Installation
 
