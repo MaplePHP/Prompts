@@ -27,7 +27,7 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
 1. **Initialize the Command and Prompt Objects**
 
     ```php
-    $prompt = new Prompt();
+    $prompt = new MaplePHP\Prompts\Prompt();
     ```
 
 2. **Set the Title and Description for the Prompts**
@@ -299,7 +299,7 @@ These prompt types enable a variety of user interactions in a CLI environment, m
 The `progress` method of the `Command` class allows displaying a progress bar with customizable sleep intervals to indicate ongoing operations.
 
 ```php
-$command = new Command();
+$command = new MaplePHP\Prompts\Command();
 $command->progress(1, 100, function($i, $length) {
     return 20;
 });
