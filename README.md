@@ -307,7 +307,7 @@ $command->progress(1, 100, function($i, $length) {
 
 ## Validation and Error Handling
 
-Each prompt can have validation rules and custom error messages. Validation can be defined using [built-in rules](https://github.com/MaplePHP/Validate) (e.g., length, email) or custom functions. Errors can be specified as static messages or dynamic functions based on the error type.
+Each prompt can have validation rules and custom error messages. Validation can be defined using [built-in rules](#validation-and-error-handling) (e.g., length, email) or custom functions. Errors can be specified as static messages or dynamic functions based on the error type.
 
 ### Validation List
 
