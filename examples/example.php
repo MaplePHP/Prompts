@@ -112,7 +112,7 @@ $inp->set([
 
 
 $prompt = $inp->prompt();
-$command->progress(1, 100, function($i, $length) {
+if($prompt) $command->progress(1, 100, function($i, $length) {
     return 20;
 });
 print_r($prompt);

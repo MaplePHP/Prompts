@@ -2,6 +2,8 @@
 
 PHP Prompts is an interactive, lightweight, and easy-to-use CLI (Command Line Interface) PHP library. It provides a way to create and manage user prompts in a command-line environment, enabling the collection of various types of user input with validation and feedback.
 
+![Prompt demo](http://wazabii.se/github-assets/maplephp-prompt-v2.gif)
+
 ### Table of Contents
 - [Installation](#installation)
 - [Usage Example](#usage-example)
