@@ -37,8 +37,8 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
     This step is optional but provides context for the user.
 
     ```php
-    $prompt->setTitle("Your prompt title");
-    $prompt->setDescription("Your prompt description, lorem ipsum dolor");
+    $inp->setTitle("Hello there!");
+    $inp->setDescription("We need your contact information to stay in touch, thank you.");
     ```
 
 3. **Define the Prompts**
@@ -46,74 +46,48 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
     Define the prompts and their respective settings, including type, message, validation rules, and error messages.
 
     ```php
-    $prompt->set([
-        "firstname" => [
+    $inp->set([
+        "name" => [
             "type" => "text",
-            "message" => "First name",
+            "message" => "Full Name",
             "validate" => [
-                "length" => [1, 200]
-            ],
-            "error" => "Required"
-        ],
-        "lastname" => [
-            "type" => "text",
-            "message" => "Last name",
-            "default" => "Doe",
-            "validate" => function($input) {
-                return (strlen($input) >= 3);
-            },
-            "error" => "The last name must be more than 2 characters!"
+                "length" => [1,200]
+            ]
         ],
         "email" => [
             "type" => "text",
             "message" => "Email",
             "validate" => [
-                "length" => [1, 200],
+                "length" => [1,200],
                 "email" => []
-            ]
+            ],
+            "error" => "The email address entered is not valid."
         ],
-        "ssl" => [
+        "newsletter" => [
             "type" => "toggle",
-            "message" => "Do you want SSL?",
+            "message" => "Receive newsletter?",
         ],
-        "message" => [
-            "type" => "message",
-            "message" => "Lorem ipsum dolor",
-        ],
-        "select" => [
+        "method" => [
             "type" => "select",
-            "message" => "Select an item below",
+            "message" => "Preferred contact method?",
             "items" => [
-                "Lorem 1",
-                "Lorem 2",
-                "Lorem 3"
+                "email" => "Email",
+                "phone" => "Phone",
+                "text" => "Text",
+                "mail" => "Mail"
             ],
         ],
-        "keyword" => [
-            "type" => "list",
-            "message" => "Keywords",
+        "phone" => [
+            "type" => "text",
+            "message" => "Phone",
             "validate" => [
-                "length" => [1, 200],
-                "number" => []
-            ],
-            "error" => function($errorType, $input, $row) {
-                if ($errorType === "length") {
-                    return "Is required";
-                }
-                return "Must be a number";
-            }
-        ],
-        "password" => [
-            "type" => "password",
-            "message" => "Password",
-            "validate" => [
-                "length" => [1, 200]
+                "length" => [1,30],
+                "phone" => []
             ]
         ],
         "confirm" => [
             "type" => "confirm",
-            "message" => "Do you wish to continue?",
-            "confirm" => "Continuing..."
+            "message" => "Do you wish to continue?"
         ]
     ]);
     ```
@@ -138,11 +112,11 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
 
 2. **message**
    - **Description**: The message or question displayed to the user.
-   - **Example**: `"message" => "Enter your first name"`
+   - **Example**: `"message" => "Enter your full name"`
 
 3. **default**
    - **Description**: A default value for the prompt, used if the user does not provide input.
-   - **Example**: `"default" => "Doe"`
+   - **Example**: `"default" => "Your default value"`
 
 4. **items**
    - **Description**: An array of items to choose from, used with `select` type prompts.
@@ -163,7 +137,7 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
    - **Description**: Error message or function to display when validation fails.
    - **Examples**:
      - Static message: `"error" => "Input is required"`
-     - Function:
+     - Custom function error:
        ```php
        "error" => function($errorType, $input, $row) {
            if ($errorType === "length") {
