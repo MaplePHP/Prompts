@@ -32,7 +32,7 @@ class Ansi
         }
         foreach ($styles as $style) {
             if (!method_exists($this, $style)) {
-                throw new InvalidArgumentException("The style {$style} does not exist!", 1);
+                throw new InvalidArgumentException("The style $style does not exist!", 1);
             }
             $message = $this->{$style}($message);
         }
@@ -238,7 +238,7 @@ class Ansi
                     self::$hasAnsi = ($buildNumber >= 10586);
                 }
             } else {
-                self::$hasAnsi = (getenv('TERM') && strpos(getenv('TERM'), 'xterm') !== false);
+                self::$hasAnsi = (getenv('TERM') && str_contains(getenv('TERM'), 'xterm'));
             }
         }
         return self::$hasAnsi;

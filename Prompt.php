@@ -1,8 +1,7 @@
 <?php
 
 namespace MaplePHP\Prompts;
-
-use MaplePHP\Prompts\Command;
+//use MaplePHP\Prompts\Command;
 use MaplePHP\Validate\Inp;
 use InvalidArgumentException;
 
@@ -19,6 +18,11 @@ class Prompt
         $this->command = new Command();
     }
 
+    /**
+     * Get command instance
+     *
+     * @return Command
+     */
     public function getCommand(): Command
     {
         return $this->command;
@@ -26,6 +30,7 @@ class Prompt
 
     /**
      * Set prompt title (headline)
+     *
      * @param string $title
      * @return self
      */
@@ -37,6 +42,7 @@ class Prompt
 
     /**
      * Set prompt description
+     *
      * @param string $description
      * @return self
      */
@@ -48,6 +54,7 @@ class Prompt
 
     /**
      * Set prompt helper text
+     *
      * @param string $text
      * @return self
      */
@@ -59,6 +66,7 @@ class Prompt
 
     /**
      * Add a line to be prompted
+     *
      * @param array $data Prompt data to validate against
      * @return self
      */
@@ -70,6 +78,7 @@ class Prompt
 
     /**
      * Add a line to be prompted
+     *
      * @param string $name Name the line
      * @param array $data Prompt data to validate against
      * @return self
@@ -82,6 +91,7 @@ class Prompt
 
     /**
      * Prompt line, directly prompt line without data
+     *
      * @param array $row
      * @return mixed
      */
@@ -96,7 +106,7 @@ class Prompt
         $rowType = $row['type'] ?? "text";
 
         if (!empty($default) && is_string($default)) {
-            $message .= " ({$default})";
+            $message .= " ($default)";
         }
 
         if ($this->isEmpty($row['message'] ?? "")) {
@@ -159,13 +169,18 @@ class Prompt
 
     /**
      * Prompt output and get result as array or false if aborted
+     *
      * @return array|false
+     * @throws PromptException
      */
     public function prompt(): array|false
     {
         $result = [];
         $this->getHeaderInfo();
         foreach ($this->data as $name => $row) {
+            if(!is_array($row)) {
+                throw new PromptException("The data array has to return an array!", 1);
+            }
             $input = $this->promptLine($row);
             if ($input === false) {
                 return false;
@@ -180,6 +195,7 @@ class Prompt
 
     /**
      * Prompt header information
+     *
      * @return void
      */
     protected function getHeaderInfo(): void 
@@ -201,22 +217,24 @@ class Prompt
     
     /**
      * Check if input is empty
+     *
      * @param mixed $input
      * @return bool
      */
-    protected function isEmpty($input): bool
+    protected function isEmpty(mixed $input): bool
     {
         return ($input === false || $input === "");
     }
 
     /**
      * Validate a set of items
+     *
      * @param array|callable $validate
      * @param string|array $input
-     * @param array $error
+     * @param array|null $error
      * @return bool
      */
-    protected function validateItems(array|callable $validate, string|array $input, &$error = []): bool
+    protected function validateItems(array|callable $validate, string|array $input, ?array &$error = []): bool
     {
         $input = is_string($input) ? [$input] : $input;
         foreach ($input as $value) {

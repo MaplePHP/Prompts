@@ -37,8 +37,8 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
     This step is optional but provides context for the user.
 
     ```php
-    $inp->setTitle("Hello there!");
-    $inp->setDescription("We need your contact information to stay in touch, thank you.");
+    $prompt->setTitle("Hello there!");
+    $prompt->setDescription("We need your contact information to stay in touch, thank you.");
     ```
 
 3. **Define the Prompts**
@@ -46,7 +46,7 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
     Define the prompts and their respective settings, including type, message, validation rules, and error messages.
 
     ```php
-    $inp->set([
+    $prompt->set([
         "name" => [
             "type" => "text",
             "message" => "Full Name",
