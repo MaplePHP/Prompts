@@ -3,9 +3,9 @@
 namespace MaplePHP\Prompts;
 
 use MaplePHP\Http\Stream;
-use MaplePHP\Prompts\SttyWrapper;
-use MaplePHP\Prompts\Ansi;
-use MaplePHP\Prompts\Navigation;
+//use MaplePHP\Prompts\SttyWrapper;
+//use MaplePHP\Prompts\Ansi;
+//use MaplePHP\Prompts\Navigation;
 use InvalidArgumentException;
 
 /**
@@ -64,10 +64,10 @@ class Command
     public function readline(string $message): string
     {
         if (function_exists("readline")) {
-            return readline("{$message}: ");
+            return readline("$message: ");
         }
 
-        $this->stream->write("{$message}: ");
+        $this->stream->write("$message: ");
         return $this->stream->getLine();
     }
 
@@ -83,21 +83,70 @@ class Command
         if ($getLine) {
             return $this->readline($message);
         }
-
-        $this->stream->write($message);
-        $this->stream->write("\n");
+        $this->write($message);
         return false;
     }
-    
+
+    /**
+     * Display a title (bold message)
+     *
+     * @param string $message
+     * @param bool $break Add new line
+     * @return void
+     */
+    public function title(string $message, bool $break = true): void
+    {
+        $this->write($this->getAnsi()->bold($message), $break);
+    }
+
+    /**
+     * Display an approval message
+     *
+     * @param string $message
+     * @param bool $break Add new line
+     * @return string|false
+     */
+    public function approve(string $message, bool $break = true): string|false
+    {
+        $this->write($this->getAnsi()->green($message), $break);
+        return false;
+    }
+
+    /**
+     * Display a status message
+     *
+     * @param string $message
+     * @param bool $break Add new line
+     * @return string|false
+     */
+    public function statusMsg(string $message, bool $break = true): string|false
+    {
+        $this->write($this->getAnsi()->blue($message), $break);
+        return false;
+    }
+
+    /**
+     * Display a error message
+     *
+     * @param string $message
+     * @param bool $break Add new line
+     * @return string|false
+     */
+    public function error(string $message, bool $break = true): string|false
+    {
+        $this->write($this->getAnsi()->red($message), $break);
+        return false;
+    }
+
     /**
      * Prompt for a comma-separated list
-     * 
+     *
      * @param string $message
      * @return array
      */
     public function list(string $message): array
     {
-        $line = $this->message("{$message} (comma separate)", true);
+        $line = $this->message("$message (comma separate)", true);
         return array_map("trim", explode(",", $line));
     }
 
@@ -139,7 +188,7 @@ class Command
         $length = count($choices);
         $this->message(sprintf($this->getAnsi()->bold($message . " (%d-%d)"), $int, $length));
         foreach ($choices as $value) {
-            $this->message($this->getAnsi()->style(["blue", "bold"], "{$int}:") . " {$value}");
+            $this->message($this->getAnsi()->style(["blue", "bold"], "$int:") . " $value");
             $int++;
         }
         $line = $this->message("Input your answer", true);
@@ -197,14 +246,16 @@ class Command
     public function mask(string $message): string
     {
         if (function_exists("system")) {
-            $this->stream->write("{$message} (masked input): ");
+            //ob_start();
+            $this->stream->write("$message (masked input): ");
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
                 // Not yet tested. But should work if my research is right
-                $input = rtrim((string)system("powershell -Command \$input = Read-Host -AsSecureString; [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(\$input))"));
+                $input = rtrim((string)exec("powershell -Command \$input = Read-Host -AsSecureString; [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(\$input))"));
             } else {
-                $input = rtrim(system($this->stty->maskInput()));
+                $input = rtrim(exec($this->stty->maskInput()));
             }
             $this->stream->write("\n");
+            //ob_get_clean();
             return $input;
         }
         $this->message("Warning: The input will not be masked. The PHP function \"system\" is disabled.");
@@ -288,10 +339,25 @@ class Command
     {
         foreach ($items as $index => $item) {
             if ($index === $selIndex) {
-                $this->stream->write("[" . $this->ansi->style(["blue"], $this->ansi->checkbox($item)) . "] " . $this->ansi->selectedItem($item) . "\n");
+                $this->stream->write("[" . $this->ansi->style(["blue"], $this->ansi->checkbox()) . "] " . $this->ansi->selectedItem($item) . "\n");
             } else {
                 $this->stream->write("[ ] $item\n");
             }
+        }
+    }
+
+    /**
+     * Stream write
+     *
+     * @param string $message
+     * @param bool $break
+     * @return void
+     */
+    protected function write(string $message, bool $break = true): void
+    {
+        $this->stream->write($message);
+        if($break) {
+            $this->stream->write("\n");
         }
     }
 }
