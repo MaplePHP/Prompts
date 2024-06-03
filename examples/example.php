@@ -22,11 +22,6 @@ if(!is_file("{$dir}/vendor/autoload.php")) {
 }
 
 require_once("{$dir}/vendor/autoload.php");
-require_once("{$dir}/SttyWrapper.php");
-require_once("{$dir}/Ansi.php");
-require_once("{$dir}/Command.php");
-require_once("{$dir}/Navigation.php");
-require_once("{$dir}/Prompt.php");
 
 use MaplePHP\Prompts\Prompt;
 use MaplePHP\Prompts\Command;
