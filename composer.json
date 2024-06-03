@@ -17,9 +17,9 @@
     ],
     "require": {
         "php": ">=8.0",
-        "maplephp/dto": "^1.0",
-        "maplephp/http": "^1.0",
-        "maplephp/validate": "^1.0"
+        "maplephp/dto": "*",
+        "maplephp/http": "*",
+        "maplephp/validate": "*"
     },
     "autoload": {
         "psr-4": {
