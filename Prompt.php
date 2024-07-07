@@ -11,7 +11,10 @@ class Prompt
     private array $data = [];
     private ?string $title = null;
     private ?string $description = null;
-    private string $helperText = 'Exit the prompt with [CTRL + C]';
+    private ?string $helperText = 'Exit the prompt with [CTRL + C]';
+    private int $index = 0;
+    private mixed $prevVal = null;
+    private bool $disableHeaderInfo = false;
 
     public function __construct()
     {
@@ -53,14 +56,25 @@ class Prompt
     }
 
     /**
+     * Disable all header information
+     * @param bool $disable
+     * @return $this
+     */
+    public function disableHeaderInfo(bool $disable): self
+    {
+        $this->disableHeaderInfo = $disable;
+        return $this;
+    }
+
+    /**
      * Set prompt helper text
      *
-     * @param string $text
+     * @param ?string $text
      * @return self
      */
-    public function setHelperText(string $text): self
+    public function setHelperText(?string $text): self
     {
-        $this->helperText = $text;
+        $this->$headerInfo = $text;
         return $this;
     }
 
@@ -94,6 +108,7 @@ class Prompt
      *
      * @param array $row
      * @return mixed
+     * @throws PromptException
      */
     public function promptLine(array $row): mixed
     {
@@ -109,7 +124,7 @@ class Prompt
             $message .= " ($default)";
         }
 
-        if ($this->isEmpty($row['message'] ?? "")) {
+        if ($rowType !== "continue" && $this->isEmpty($row['message'] ?? "")) {
             throw new InvalidArgumentException("The message cannot be empty!", 1);
         }
 
@@ -141,6 +156,21 @@ class Prompt
                     return false;
                 }
                 break;
+            case "continue":
+                if(is_callable($items)) {
+                    $items = $items($this->prevVal, $this->index);
+                    if($items === false) {
+                        return true;
+                    }
+                }
+                if(!is_array($items)) {
+                    throw new InvalidArgumentException("The items must return a a valid array");
+                }
+                $inst = new self();
+                $inst->disableHeaderInfo(true);
+                $inst->data = $items;
+                $input = $inst->prompt();
+                break;
         }
 
         if (is_string($row['confirm'] ?? false)) {
@@ -164,6 +194,7 @@ class Prompt
             }
             return $this->promptLine($row);
         }
+        $this->prevVal = $input;
         return $input;
     }
 
@@ -176,7 +207,10 @@ class Prompt
     public function prompt(): array|false
     {
         $result = [];
-        $this->getHeaderInfo();
+        $this->index = 0;
+        if(!$this->disableHeaderInfo) {
+            $this->getHeaderInfo();
+        }
         foreach ($this->data as $name => $row) {
             if(!is_array($row)) {
                 throw new PromptException("The data array has to return an array!", 1);
@@ -189,6 +223,7 @@ class Prompt
                 $result[$name] = $input;
             }
             unset($this->data[$name]);
+            $this->index++;
         }
         return $result;
     }
@@ -200,7 +235,9 @@ class Prompt
      */
     protected function getHeaderInfo(): void 
     {
-        $this->command->message("\n" . $this->command->getAnsi()->italic($this->helperText . "\n"));
+        if(!is_null($this->helperText)) {
+            $this->command->message("\n" . $this->command->getAnsi()->italic($this->helperText . "\n"));
+        }
 
         if (is_string($this->title)) {
             $this->command->message($this->command->getAnsi()->bold($this->title));
