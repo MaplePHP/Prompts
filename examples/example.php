@@ -63,6 +63,17 @@ $inp->set([
         "type" => "toggle",
         "message" => "Do you want SSL",
     ],
+    "url" => [
+        "type" => "continue",
+        "items" => function($value) {
+            return [
+                "url" => [
+                    "type" => "text",
+                    "message" => ((int)$value === 1)  ? "Secure URL" : "Insecure URL"
+                ]
+            ];
+        }
+    ],
     "message" => [
         "type" => "message", // Will be exclude form the end result array!
         "message" => "Lorem ipsum dolor",
@@ -105,10 +116,17 @@ $inp->set([
     ]
 ]);
 
+try {
+    $prompt = $inp->prompt();
+    if($prompt) $command->progress(1, 100, function($i, $length) {
+        return 20;
+    });
+    print_r($prompt);
 
-$prompt = $inp->prompt();
-if($prompt) $command->progress(1, 100, function($i, $length) {
-    return 20;
-});
-print_r($prompt);
+} catch (\MaplePHP\Prompts\PromptException $e) {
+    $command->error($e->getMessage());
+}
+
+
+
 

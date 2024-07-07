@@ -9,6 +9,7 @@ PHP Prompts is an interactive, lightweight, and easy-to-use CLI (Command Line In
 - [Usage Example](#usage-example)
 - [Available Options](#available-options)
 - [Available Prompt Types](#available-prompt-types)
+- [Command instance](#command-instance)
 - [Progress Bar](#progress-bar)
 - [Validation](#validation-and-error-handling)
 
@@ -28,25 +29,24 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
 
 1. **Initialize**
 
-    ```php
-    $prompt = new MaplePHP\Prompts\Prompt();
-    ```
+```php
+$prompt = new MaplePHP\Prompts\Prompt();
+```
 
 2. **Set the Title and Description for the Prompts**
 
-    This step is optional but provides context for the user.
+   This step is optional but provides context for the user.
 
-    ```php
-    $prompt->setTitle("Hello there!");
-    $prompt->setDescription("We need your contact information to stay in touch, thank you.");
-    ```
+   ```php
+   $prompt->setTitle("Hello there!");
+   $prompt->setDescription("We need your contact information to stay in touch, thank you.");
+   ```
 
 3. **Define the Prompts**
 
     Define the prompts and their respective settings, including type, message, validation rules, and error messages.
-
-    ```php
-    $prompt->set([
+   ```php
+   $prompt->set([
         "name" => [
             "type" => "text",
             "message" => "Full Name",
@@ -72,26 +72,33 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
             "message" => "Preferred contact method?",
             "items" => [
                 "email" => "Email",
-                "phone" => "Phone",
-                "text" => "Text",
-                "mail" => "Mail"
+                "phone" => "Phone"
             ],
         ],
-        "phone" => [
-            "type" => "text",
-            "message" => "Phone",
-            "validate" => [
-                "length" => [1,30],
-                "phone" => []
-            ]
+        "contactByPhone" => [
+            "type" => "continue",
+            "items" => function($prevVal) {
+                if($prevVal === "phone") {
+                    return [
+                        "phone" => [
+                            "type" => "text",
+                            "message" => "Phone",
+                            "validate" => [
+                                "length" => [1,30],
+                                "phone" => []
+                            ]
+                        ]
+                    ];
+                }
+                return false;
+            }
         ],
         "confirm" => [
             "type" => "confirm",
             "message" => "Do you wish to continue?"
         ]
-    ]);
-    ```
-
+   ]);
+      ```
 4. **Execute the Prompt**
 
     Prompt the user for input based on the defined prompts above. The collected user input will be saved in the `$prompt` variable.
@@ -160,6 +167,7 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
 - **toggle**: Asks a yes/no question.
 - **select**: Provides a list of options for selection.
 - **list**: Prompts for a comma-separated list of values.
+- **continue**: Continue with input dependent on previous value 
 - **message**: Displays a message (no input).
 - **confirm**: Asks for confirmation before proceeding.
 
@@ -219,7 +227,29 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
          "message" => "Keywords"
      ]
      ```
-
+5. **continue**
+    - **Description**: Continue with input dependent on previous value.
+    - **Usage Example**:
+      ```php
+      "continue" => [
+         "type" => "continue",
+         "items" => function($prevVal) {
+            if($prevVal === "phone") {
+                return [
+                    "phone" => [
+                        "type" => "text",
+                        "message" => "Phone",
+                        "validate" => [
+                            "length" => [1,30],
+                            "phone" => []
+                        ]
+                    ]
+                ];
+            }
+            return false;
+        }
+      ]
+      ```
 6. **message**
    - **Description**: Displays a message to the user. This type does not collect input and will be excluded from the end result array.
    - **Usage Example**:
@@ -241,6 +271,29 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
      ```
 
 These prompt types enable a variety of user interactions in a CLI environment, making it easy to collect and validate different kinds of input using the PHP Prompts library.
+
+## Command instance
+You also execute some of the prompt above command directly with the Command class.
+
+```php
+$command = new MaplePHP\Prompts\Command();
+// Print messages and return input
+$input = $command->message("Text field", true);
+$input = $command->mask("Masked input (password)");
+$input = $command->toggle("Toggle yes/no");
+$input = $command->select("Choose a value", [
+    //...
+]);
+$input = $command->list("Comma seperated list");
+$input = $command->confirm("Confirm");
+
+// Print messages
+$command->message("Print message");
+$command->title("Print bolded message");
+$command->statusMsg("Print blue status message");
+$command->approve("Print green approve message");
+$command->approve("Print red error message");
+```
 
 ## Progress Bar
 
