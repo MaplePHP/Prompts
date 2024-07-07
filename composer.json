@@ -1,7 +1,7 @@
 {
   "name": "maplephp/prompts",
   "type": "library",
-  "version": "v1.0.2",
+  "version": "v1.0.3",
   "description": "PHP Prompts is an interactive, lightweight and very easy to CLI (Command Line Interface) PHP library.",
   "keywords": [
     "php",
