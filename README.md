@@ -114,7 +114,7 @@ $prompt = new MaplePHP\Prompts\Prompt();
 ## Available Options
 
 1. **type**
-   - **Description**: Specifies the type of the prompt (e.g., `text`, `password`, `toggle`, `select`, `list`, `message`, `confirm`).
+   - **Description**: Specifies the type of the prompt (e.g., `text`, `password`, `toggle`, `select`, `list`, `continue`, `message`, `confirm`).
    - **Example**: `"type" => "text"`
 
 2. **message**
