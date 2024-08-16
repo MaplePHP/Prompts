@@ -259,7 +259,6 @@ class Ansi
      */
     final public static function isSupported(): bool
     {
-        self::$hasAnsi = false;
         if (is_null(self::$hasAnsi)) {
             if (stripos(PHP_OS, 'WIN') === 0) {
 
