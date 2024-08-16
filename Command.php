@@ -20,7 +20,7 @@ class Command
 
     public function __construct()
     {
-        $this->stream = new Stream(Stream::STDIN, "r");
+        $this->stream = new Stream(Stream::STDOUT);
         $this->stty = new SttyWrapper();
         $this->ansi = new Ansi();
     }

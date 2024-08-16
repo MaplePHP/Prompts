@@ -2,6 +2,7 @@
 
 namespace MaplePHP\Prompts;
 
+use Exception;
 use InvalidArgumentException;
 
 /**
@@ -143,52 +144,72 @@ class Ansi
 
     /**
      * Clear line
-     * 
+     *
      * @return string
+     * @throws Exception
      */
     public function clearLine(): string
     {
+        if (!self::isSupported()) {
+            throw new Exception("Ansi not supported by OS", 1);
+        }
         return "\033[2K";
     }
 
     /**
      * Move cursor to specified line
-     * 
+     *
      * @param int $line
      * @return string
+     * @throws Exception
      */
     public function moveCursorTo(int $line): string
     {
+        if (!self::isSupported()) {
+            throw new Exception("Ansi not supported by OS", 1);
+        }
         return "\033[{$line}A";
     }
 
     /**
      * Move cursor down
-     * 
+     *
      * @return string
+     * @throws Exception
      */
     public function cursorDown(): string
     {
+        if (!self::isSupported()) {
+            throw new Exception("Ansi not supported by OS", 1);
+        }
         return "\033[1B";
     }
 
     /**
      * Arrow up key
-     * 
+     *
      * @return string
+     * @throws Exception
      */
     public function keyUp(): string 
     {
+        if (!self::isSupported()) {
+            throw new Exception("Ansi not supported by OS", 1);
+        }
         return "\033[A";
     }
 
     /**
      * Arrow down key
-     * 
+     *
      * @return string
+     * @throws Exception
      */
     public function keyDown(): string 
     {
+        if (!self::isSupported()) {
+            throw new Exception("Ansi not supported by OS", 1);
+        }
         return "\033[B";
     }
 
@@ -204,21 +225,29 @@ class Ansi
 
     /**
      * Escape key
-     * 
+     *
      * @return string
+     * @throws Exception
      */
     public function keyEscape(): string 
     {
+        if (!self::isSupported()) {
+            throw new Exception("Ansi not supported by OS", 1);
+        }
         return "\033";
     }
 
     /**
      * Symbol: checkbox
-     * 
+     *
      * @return string
+     * @throws Exception
      */
     public function checkbox(): string 
     {
+        if (!self::isSupported()) {
+            throw new Exception("Ansi not supported by OS", 1);
+        }
         return "\xE2\x9C\x94";
     }
 
@@ -232,11 +261,15 @@ class Ansi
     {
         if (is_null(self::$hasAnsi)) {
             if (stripos(PHP_OS, 'WIN') === 0) {
+
+                self::$hasAnsi = false;
+                /*
                 $osVersion = php_uname('v');
                 if (preg_match('/build (\d+)/i', $osVersion, $matches)) {
                     $buildNumber = (int)$matches[1];
                     self::$hasAnsi = ($buildNumber >= 10586);
                 }
+                 */
             } else {
                 self::$hasAnsi = (getenv('TERM') && str_contains(getenv('TERM'), 'xterm'));
             }
