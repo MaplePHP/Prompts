@@ -1,8 +1,10 @@
 # MaplePHP Prompts
 
-PHP Prompts is an interactive, lightweight, and easy-to-use CLI (Command Line Interface) PHP library. It provides a way to create and manage user prompts in a command-line environment, enabling the collection of various types of user input with validation and feedback.
+PHP Prompts is a pretty, interactive, lightweight, and user-friendly CLI (Command Line Interface) PHP library designed for seamless use across Linux, Unix, Darwin, and Windows. It allows you to create and manage user prompts in a command-line environment, enabling the collection of various types of input with built-in validation and feedback.
 
 ![Prompt demo](http://wazabii.se/github-assets/maplephp-prompt-v2.gif)
+
+_Note that the prompt may not look as polished on Windows as on Unix, but it will work just as well._
 
 ### Table of Contents
 - [Installation](#installation)
