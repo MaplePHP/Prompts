@@ -2,7 +2,7 @@
 
 namespace MaplePHP\Prompts;
 
-use InvalidArgumentException;
+use Exception;
 
 /**
  * Class Navigation
@@ -12,16 +12,16 @@ class Navigation
 {
     const HELPER_TEXT = "Use arrow keys to navigate and press (%s) to select item.";
 
-    private $command;
+    private Command $command;
     private int $index = 0;
     private array $items = [];
     private array $values = [];
-    private $input;
-    private string $acceptKey;
+    private string $acceptKey = "";
     private ?string $helperText = null;
 
     /**
      * Navigation constructor.
+     *
      * @param Command $command
      */
     public function __construct(Command $command)
@@ -56,18 +56,19 @@ class Navigation
 
     /**
      * Navigate questions
-     * 
+     *
      * @param string $message
      * @param array $items
      * @param callable $call
      * @return void
+     * @throws Exception
      */
     public function navigation(string $message, array $items, callable $call): void 
     {
         $this->values = array_keys($items);
         $this->items = array_values($items);
         $start = $this->command->getStty()->toggleEnable(false, "echo")->toggleEnable(true, "cbreak");
-        system($start);
+        system((string)$start);
 
         $this->command->getStream()->write($this->command->getAnsi()->bold($message) . "\n");
         $call($this->index, $this->items);
@@ -78,7 +79,7 @@ class Navigation
         });
 
         $end = $this->command->getStty()->toggleEnable(true, "echo")->toggleEnable(false, "cbreak");
-        system($end);
+        system((string)$end);
     }
 
     /**
@@ -88,7 +89,10 @@ class Navigation
      */
     public function getValue(): int|string
     {
-        return $this->values[$this->index];
+        if (isset($this->values[$this->index]) && (is_string($this->values[$this->index]) || is_int($this->values[$this->index]))) {
+            return $this->values[$this->index];
+        }
+        return 0;
     }
 
     /**
@@ -98,20 +102,21 @@ class Navigation
      */
     public function getItem(): string 
     {
-        return $this->items[$this->index];
+        return (string)($this->items[$this->index] ?? "");
     }
 
     /**
      * Interactive navigate between choices
-     * 
+     *
      * @param callable $call Will prompt to callable
      * @return void
+     * @throws Exception
      */
     public function input(callable $call): void 
     {
         while (true) {
             $input = $this->command->getStream()->read(3);
-            $key = $this->getKeyName($input);
+            //$key = $this->getKeyName($input);
 
             if ($input === $this->command->getAnsi()->keyUp()) {
                 $this->index = max(0, $this->index - 1);
@@ -136,7 +141,9 @@ class Navigation
     protected function getKeyName(string $key): string
     {
         $check = $this->escBreaker($key);
-        return $this->command->getAnsi()::NAV[$check] ?? $key;
+        /** @var array<string, string> $nav */
+        $nav = $this->command->getAnsi()::NAV;
+        return ($nav[$check] ?? $key);
     }
 
     /**
@@ -154,7 +161,7 @@ class Navigation
     }
 
     /**
-     * Will escape breaks so they are showable
+     * Will escape breaks so they are show-able
      * 
      * @param string $string
      * @return string
@@ -166,9 +173,10 @@ class Navigation
 
     /**
      * Clear lines
-     * 
+     *
      * @param int $lines Total lines to clear
      * @return void
+     * @throws Exception
      */
     public function clearLines(int $lines): void
     {

@@ -11,35 +11,53 @@ use InvalidArgumentException;
  */
 class Ansi
 {
+    /**
+     * @var array<string, string>
+     */
     public const NAV = [
         '\033[A' => 'up',
         '\033[B' => 'down',
         '\n' => 'enter'
     ];
 
-    private static ?bool $hasAnsi = null;
+    private bool $disableAnsi = false;
+    private ?bool $hasAnsi = null;
 
     /**
      * Set one or more styles
      * 
-     * @param string|array $styles
+     * @param string|array|null $styles
      * @param string $message
      * @return string
      */
-    public function style(string|array $styles, string $message): string
+    public function style(string|array|null $styles, string $message): string
     {
-        if (is_string($styles)) {
-            $styles = [$styles];
-        }
-        foreach ($styles as $style) {
-            if (!method_exists($this, $style)) {
-                throw new InvalidArgumentException("The style $style does not exist!", 1);
+        if(!is_null($styles)) {
+            if (is_string($styles)) {
+                $styles = [$styles];
             }
-            $message = $this->{$style}($message);
+            foreach ($styles as $style) {
+                if (!is_string($style) || !method_exists($this, $style)) {
+                    $style = !is_string($style) ? '' : $style;
+                    throw new InvalidArgumentException("The style $style does not exist!", 1);
+                }
+                $message = $this->{$style}($message);
+            }
         }
-        return $message;
+        return (string)$message;
     }
 
+    /**
+     * Disable ANSI
+     * @param bool $disableAnsi
+     * @return self
+     */
+    function disableAnsi(bool $disableAnsi): self
+    {
+        $this->disableAnsi = $disableAnsi;
+        return $this;
+    }
+    
     /**
      * Set a custom ansi style
      * 
@@ -49,10 +67,26 @@ class Ansi
      */
     public function ansiStyle(int $ansiNum, string $message): string
     {
-        if (self::isSupported()) {
-            return "\033[{$ansiNum}m{$message}\033[0m";
+        if ($this->isSupported()) {
+            return "\033[{$ansiNum}m$message\033[0m";
         }
         return $message;
+    }
+
+    /**
+     * Create a line
+     *
+     * @param int $lineLength
+     * @param int $color
+     * @return string
+     */
+    public function line(int $lineLength, int $color = 90): string
+    {
+        $line = str_repeat('─', $lineLength);
+        if ($this->isSupported()) {
+            return "\033[1;{$color}m$line\033[0m";
+        }
+        return $line;
     }
 
     /**
@@ -78,6 +112,17 @@ class Ansi
     }
 
     /**
+     * White input color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function white(string $message): string
+    {
+        return $this->ansiStyle(97, $message);
+    }
+
+    /**
      * Red input color
      * 
      * @param string $message
@@ -85,7 +130,7 @@ class Ansi
      */
     public function red(string $message): string
     {
-        return $this->ansiStyle(31, $message);
+        return $this->ansiStyle(91, $message);
     }
 
     /**
@@ -118,7 +163,96 @@ class Ansi
      */
     public function blue(string $message): string
     {
-        return $this->ansiStyle(34, $message);
+        return $this->ansiStyle(94, $message);
+    }
+
+    /**
+     * Blue input color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function grey(string $message): string
+    {
+        return $this->ansiStyle(90, $message);
+    }
+
+    /**
+     * Magenta input color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function magenta(string $message): string
+    {
+        return $this->ansiStyle(35, $message);
+    }
+
+    /**
+     * Cyan input color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function cyan(string $message): string
+    {
+        return $this->ansiStyle(36, $message);
+    }
+
+    /**
+     * Red input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function redBg(string $message): string
+    {
+        if(!$this->isSupported()) {
+            return "[$message]";
+        }
+        return $this->ansiStyle(41, $message);
+    }
+
+    /**
+     * Yellow input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function yellowBg(string $message): string
+    {
+        if(!$this->isSupported()) {
+            return "[$message]";
+        }
+        return $this->ansiStyle(43, $message);
+    }
+
+    /**
+     * Blue input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function blueBg(string $message): string
+    {
+        if(!$this->isSupported()) {
+            return "[$message]";
+        }
+        return $this->ansiStyle(44, $message);
+    }
+
+    /**
+     * Green input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function greenBg(string $message): string
+    {
+        if(!$this->isSupported()) {
+            return "[$message]";
+        }
+        return $this->ansiStyle(42, $message);
     }
 
     /**
@@ -131,11 +265,12 @@ class Ansi
     {
         return $this->style(['blue', 'bold'], $message);
     }
-    
+
     /**
      * Clear line and move down
-     * 
+     *
      * @return string
+     * @throws Exception
      */
     public function clearDown(): string
     {
@@ -150,7 +285,7 @@ class Ansi
      */
     public function clearLine(): string
     {
-        if (!self::isSupported()) {
+        if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
         }
         return "\033[2K";
@@ -165,7 +300,7 @@ class Ansi
      */
     public function moveCursorTo(int $line): string
     {
-        if (!self::isSupported()) {
+        if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
         }
         return "\033[{$line}A";
@@ -179,7 +314,7 @@ class Ansi
      */
     public function cursorDown(): string
     {
-        if (!self::isSupported()) {
+        if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
         }
         return "\033[1B";
@@ -193,7 +328,7 @@ class Ansi
      */
     public function keyUp(): string 
     {
-        if (!self::isSupported()) {
+        if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
         }
         return "\033[A";
@@ -207,7 +342,7 @@ class Ansi
      */
     public function keyDown(): string 
     {
-        if (!self::isSupported()) {
+        if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
         }
         return "\033[B";
@@ -231,7 +366,7 @@ class Ansi
      */
     public function keyEscape(): string 
     {
-        if (!self::isSupported()) {
+        if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
         }
         return "\033";
@@ -245,7 +380,7 @@ class Ansi
      */
     public function checkbox(): string 
     {
-        if (!self::isSupported()) {
+        if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
         }
         return "\xE2\x9C\x94";
@@ -257,23 +392,19 @@ class Ansi
      * 
      * @return bool
      */
-    final public static function isSupported(): bool
+    final public function isSupported(): bool
     {
-        if (is_null(self::$hasAnsi)) {
+        if($this->disableAnsi) {
+            $this->hasAnsi = false;
+        }
+        if (is_null($this->hasAnsi)) {
             if (stripos(PHP_OS, 'WIN') === 0) {
-
-                self::$hasAnsi = false;
-                /*
-                $osVersion = php_uname('v');
-                if (preg_match('/build (\d+)/i', $osVersion, $matches)) {
-                    $buildNumber = (int)$matches[1];
-                    self::$hasAnsi = ($buildNumber >= 10586);
-                }
-                 */
+                $this->hasAnsi = false;
             } else {
-                self::$hasAnsi = (getenv('TERM') && str_contains(getenv('TERM'), 'xterm'));
+                $term = getenv('TERM') !== false ? getenv('TERM') : "";
+                $this->hasAnsi = ($term !== "" && str_contains((string)$term, 'xterm'));
             }
         }
-        return self::$hasAnsi;
+        return $this->hasAnsi;
     }
 }

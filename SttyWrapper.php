@@ -2,8 +2,6 @@
 
 namespace MaplePHP\Prompts;
 
-use InvalidArgumentException;
-
 /**
  * Class SttyWrapper
  * @package MaplePHP\Prompts

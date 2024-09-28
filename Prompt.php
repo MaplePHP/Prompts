@@ -2,6 +2,8 @@
 
 namespace MaplePHP\Prompts;
 //use MaplePHP\Prompts\Command;
+use ErrorException;
+use Exception;
 use MaplePHP\Validate\Inp;
 use InvalidArgumentException;
 
@@ -67,18 +69,6 @@ class Prompt
     }
 
     /**
-     * Set prompt helper text
-     *
-     * @param ?string $text
-     * @return self
-     */
-    public function setHelperText(?string $text): self
-    {
-        $this->$headerInfo = $text;
-        return $this;
-    }
-
-    /**
      * Add a line to be prompted
      *
      * @param array $data Prompt data to validate against
@@ -107,20 +97,22 @@ class Prompt
      * Prompt line, directly prompt line without data
      *
      * @param array $row
-     * @return mixed
+     * @return string|array|bool|int
      * @throws PromptException
+     * @throws Exception
      */
-    public function promptLine(array $row): mixed
+    public function promptLine(array $row): string|array|bool|int
     {
         $input = false;
         $default = $row['default'] ?? "";
         $validate = $row['validate'] ?? [];
-        $message = $row['message'] ?? "";
+        $message = (string)($row['message'] ?? "");
         $error = $row['error'] ?? false;
         $items = $row['items'] ?? [];
         $rowType = $row['type'] ?? "text";
+        $confirm = $row['confirm'] ?? false;
 
-        if (!empty($default) && is_string($default)) {
+        if (isset($default) && is_string($default)) {
             $message .= " ($default)";
         }
 
@@ -144,6 +136,9 @@ class Prompt
                 $input = $this->command->list($message);
                 break;
             case "select":
+                if (!is_array($items)) {
+                   throw new InvalidArgumentException("The items must be an array!", 1);
+                }
                 $input = $this->command->select($message, $items);
                 break;
             case "toggle":
@@ -173,8 +168,8 @@ class Prompt
                 break;
         }
 
-        if (is_string($row['confirm'] ?? false)) {
-            $this->command->message($this->command->getAnsi()->style(["green", "bold"], $row['confirm']));
+        if (is_string($confirm)) {
+            $this->command->message($this->command->getAnsi()->style(["green", "bold"], $confirm));
             $this->command->message("...");
         }
 
@@ -182,6 +177,13 @@ class Prompt
             $input = $default;
         }
         
+        if (!(is_array($input) || is_string($input))) {
+            throw new InvalidArgumentException("The input item is wrong input data type", 1);
+        }
+        if (!(is_array($validate) || is_callable($validate))) {
+            throw new InvalidArgumentException("The validate item is wrong input data type", 1);
+        }
+
         if (!$this->validateItems($validate, $input, $errorType)) {
             if (is_string($error) && $error !== "") {
                 $this->command->message($this->command->getAnsi()->red($error));
@@ -269,7 +271,9 @@ class Prompt
      * @param array|callable $validate
      * @param string|array $input
      * @param array|null $error
+     * @param-out null|string $error Error message or method that caused validation failure.
      * @return bool
+     * @throws ErrorException
      */
     protected function validateItems(array|callable $validate, string|array $input, ?array &$error = []): bool
     {
@@ -281,18 +285,21 @@ class Prompt
                     throw new InvalidArgumentException("The callable validate function must return a boolean!", 1);
                 }
                 if ($isValid) {
+                    $error = null;
                     return false;
                 }
             } else {
                 foreach ($validate as $method => $args) {
+                    $method = (string)$method;
                     $args = is_array($args) ? $args : [];
-                    if (!$this->validate($value, $method, $args)) {
+                    if (!$this->validate((string)$value, $method, $args)) {
                         $error = $method;
                         return false;
                     }
                 }
             }
         }
+        $error = null;
         return true;
     }
 
@@ -302,13 +309,14 @@ class Prompt
      * @param string $method
      * @param array $args
      * @return bool
+     * @throws ErrorException
      */
     final protected function validate(string $value, string $method, array $args = []): bool
     {
         $inp = new Inp($value);
         if (!method_exists($inp, $method)) {
-            throw new InvalidArgumentException("The validation method does not exist", 1);
+            throw new InvalidArgumentException("The validation method \"$method\" does not exist", 1);
         }
-        return call_user_func_array([$inp, $method], $args);
+        return (bool)call_user_func_array([$inp, $method], $args);
     }
 }
