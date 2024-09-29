@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="1"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="true"
+    autoloader="vendor/autoload.php"
+>
+
+    <issueHandlers>
+        <!-- Is not applicable here -->
+        <PossiblyUnusedMethod errorLevel="suppress" />
+        <!-- I do not care for these at all -->
+        <MixedAssignment errorLevel="suppress" />
+        <MixedArgumentTypeCoercion errorLevel="suppress" />
+    </issueHandlers>
+
+    <projectFiles>
+        <directory name="./" />
+        <ignoreFiles>
+            <file name="**/unitary-*.php" />
+            <directory name="**/tests" />
+            <directory name="**/examples" />
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+</psalm>

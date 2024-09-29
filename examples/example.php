@@ -26,7 +26,18 @@ require_once("{$dir}/vendor/autoload.php");
 use MaplePHP\Prompts\Prompt;
 use MaplePHP\Prompts\Command;
 use MaplePHP\Prompts\SttyWrapper;
+// Define ANSI escape sequences for colors
+$limeGreenBackground = "\033[102m";  // Bright green background
+$grayText = "\e[90m";              // Bright black (gray) text
+$reset = "\e[0m";                  // Reset colors
 
+// Custom message with padding
+$message = "  PASS  ";
+
+// Display the styled output in lime green with gray text
+echo "{$limeGreenBackground}{$grayText}{$message}{$reset} Tests\\Unit\\ExampleTest\n";
+
+die;
 $command = new Command();
 $inp = new Prompt();
 

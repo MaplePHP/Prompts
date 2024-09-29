@@ -2,10 +2,9 @@
 
 namespace MaplePHP\Prompts;
 
+use Exception;
+use MaplePHP\Http\Interfaces\StreamInterface;
 use MaplePHP\Http\Stream;
-//use MaplePHP\Prompts\SttyWrapper;
-//use MaplePHP\Prompts\Ansi;
-//use MaplePHP\Prompts\Navigation;
 use InvalidArgumentException;
 
 /**
@@ -14,30 +13,31 @@ use InvalidArgumentException;
  */
 class Command
 {
-    private Stream $stream;
+    private StreamInterface $stream;
     private SttyWrapper $stty;
     private Ansi $ansi;
 
-    public function __construct()
+    public function __construct(?StreamInterface $stream = null)
     {
-        $this->stream = new Stream(Stream::STDOUT);
+        // This is the stream we want to use, 9/10 times
+        $this->stream = is_null($stream) ? new Stream(Stream::STDOUT) : $stream;
         $this->stty = new SttyWrapper();
         $this->ansi = new Ansi();
     }
 
     /**
      * Get stream
-     * 
-     * @return Stream
+     *
+     * @return StreamInterface
      */
-    public function getStream(): Stream
+    public function getStream(): StreamInterface
     {
         return $this->stream;
     }
 
     /**
      * Get SttyWrapper
-     * 
+     *
      * @return SttyWrapper
      */
     public function getStty(): SttyWrapper
@@ -47,7 +47,7 @@ class Command
 
     /**
      * Get Ansi
-     * 
+     *
      * @return Ansi
      */
     public function getAnsi(): Ansi
@@ -57,7 +57,7 @@ class Command
 
     /**
      * Read line
-     * 
+     *
      * @param string $message
      * @return string
      */
@@ -68,12 +68,12 @@ class Command
         }
 
         $this->stream->write("$message: ");
-        return $this->stream->getLine();
+        return (string)$this->stream->getLine();
     }
 
     /**
      * Display a message
-     * 
+     *
      * @param string $message
      * @param bool $getLine Stop and get line
      * @return string|false
@@ -146,24 +146,25 @@ class Command
      */
     public function list(string $message): array
     {
-        $line = $this->message("$message (comma separate)", true);
+        $line = (string)$this->message("$message (comma separate)", true);
         return array_map("trim", explode(",", $line));
     }
 
     /**
      * Display an interactive prompt with multiple options
      * If interactive prompt is not supported, use "inputSelect"
-     * 
+     *
      * @param string $message
      * @param array $items
      * @return int|string
+     * @throws Exception
      */
     public function select(string $message, array $items): int|string
     {
         if ($this->stty->hasSttySupport()) {
             $command = new Navigation($this);
             $command->setHelperText($command::HELPER_TEXT);
-            $command->navigation($message, $items, function ($index, $items) {
+            $command->navigation($message, $items, function (int $index, array $items) {
                 $this->showMenu($index, $items);
             });
             return $command->getValue();
@@ -173,7 +174,7 @@ class Command
 
     /**
      * Display a non-interactive prompt with multiple options
-     * 
+     *
      * @param string $message
      * @param array $choices
      * @return int|string
@@ -191,7 +192,7 @@ class Command
             $this->message($this->getAnsi()->style(["blue", "bold"], "$int:") . " $value");
             $int++;
         }
-        $line = $this->message("Input your answer", true);
+        $line = (int)$this->message("Input your answer", true);
         if ($line > 0 && $line <= $length) {
             $index = $line - 1;
             $values = array_keys($choices);
@@ -202,9 +203,10 @@ class Command
 
     /**
      * Interactive prompt, choose between yes or no
-     * 
+     *
      * @param string $message
      * @return int|string
+     * @throws Exception
      */
     public function toggle(string $message): int|string
     {
@@ -212,7 +214,7 @@ class Command
             $items = [1 => "Yes", 0 => "No"];
             $command = new Navigation($this);
             $command->setHelperText(Navigation::HELPER_TEXT);
-            $command->navigation($message, $items, function ($index, $items) {
+            $command->navigation($message, $items, function (int $index, array $items) {
                 $this->showMenu($index, $items);
             });
             return $command->getValue();
@@ -222,14 +224,15 @@ class Command
 
     /**
      * Non-interactive prompt, choose between yes or no
-     * 
+     *
      * @param string $message
-     * @return string
+     * @return int|string
+     * @throws Exception
      */
-    public function inputToggle(string $message): string
+    public function inputToggle(string $message): int|string
     {
         $this->message($this->getAnsi()->bold($message));
-        $line = strtolower($this->message("Type 'yes' or 'no'", true));
+        $line = strtolower((string)$this->message("Type 'yes' or 'no'", true));
 
         if ($line === "yes" || $line === "no") {
             return (int)($line === "yes");
@@ -239,7 +242,7 @@ class Command
 
     /**
      * Get a masked input if supported, otherwise get unmasked input
-     * 
+     *
      * @param string $message
      * @return string
      */
@@ -252,26 +255,26 @@ class Command
                 // Not yet tested. But should work if my research is right
                 $input = rtrim((string)exec("powershell -Command \$input = Read-Host -AsSecureString; [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(\$input))"));
             } else {
-                $input = rtrim(exec($this->stty->maskInput()));
+                $input = rtrim((string)exec((string)$this->stty->maskInput()));
             }
             $this->stream->write("\n");
             //ob_get_clean();
             return $input;
         }
         $this->message("Warning: The input will not be masked. The PHP function \"system\" is disabled.");
-        return $this->message($message, true);
+        return (string)$this->message($message, true);
     }
 
     /**
      * Display a confirmation prompt
-     * 
+     *
      * @param string $message
      * @return bool
      */
     public function confirm(string $message): bool
     {
         $this->message($this->getAnsi()->style(["yellow", "bold"], $message));
-        $line = trim(strtolower($this->message("Type 'yes' to continue and 'no' to abort'", true)));
+        $line = trim(strtolower((string)$this->message("Type 'yes' to continue and 'no' to abort'", true)));
 
         if ($line === "yes") {
             return true;
@@ -280,10 +283,10 @@ class Command
         }
         return $this->confirm($message);
     }
-    
+
     /**
      * Create a progress bar
-     * 
+     *
      * @param int $expectedRows The maximum expected rows
      * @param int $maxLength The maximum bar length
      * @param int|callable|null $sleep int for sleep in milliseconds (3000 ms = 1 second) or callback with returned int for sleep in milliseconds
@@ -300,7 +303,7 @@ class Command
             if (is_callable($sleep)) {
                 $sleep = $sleep($i, $length);
             }
-            if (is_int($sleep)) {
+            if (is_int($sleep) && $sleep >= 0) {
                 usleep($sleep * 1000);
             }
             $this->stream->write($this->progAppear($char, $i, $length));
@@ -311,7 +314,7 @@ class Command
 
     /**
      * Progress appearance
-     * 
+     *
      * @param string $char
      * @param float $i
      * @param float $length
@@ -330,16 +333,17 @@ class Command
 
     /**
      * Show interactive menu
-     * 
+     *
      * @param int $selIndex
      * @param array $items
      * @return void
+     * @throws Exception
      */
     protected function showMenu(int $selIndex, array $items): void
     {
         foreach ($items as $index => $item) {
             if ($index === $selIndex) {
-                $this->stream->write("[" . $this->ansi->style(["blue"], $this->ansi->checkbox()) . "] " . $this->ansi->selectedItem($item) . "\n");
+                $this->stream->write("[" . $this->ansi->style(["blue"], $this->ansi->checkbox()) . "] " . $this->ansi->selectedItem((string)$item) . "\n");
             } else {
                 $this->stream->write("[ ] $item\n");
             }
