@@ -98,11 +98,11 @@ class Prompt
      * Prompt line, directly prompt line without data
      *
      * @param array $row
-     * @return string|array|bool|int
+     * @return mixed
      * @throws PromptException
      * @throws Exception
      */
-    public function promptLine(array $row): string|array|bool|int
+    public function promptLine(array $row): mixed
     {
         $input = false;
         $default = $row['default'] ?? "";
@@ -113,7 +113,7 @@ class Prompt
         $rowType = $row['type'] ?? "text";
         $confirm = $row['confirm'] ?? false;
 
-        if (isset($default) && is_string($default)) {
+        if (isset($default) && is_string($default) && strlen($default)) {
             $message .= " ($default)";
         }
 
@@ -177,10 +177,7 @@ class Prompt
         if ($this->isEmpty($input)) {
             $input = $default;
         }
-
-        if (!(is_array($input) || is_string($input))) {
-            throw new InvalidArgumentException("The input item is wrong input data type", 1);
-        }
+        
         if (!(is_array($validate) || is_callable($validate))) {
             throw new InvalidArgumentException("The validate item is wrong input data type", 1);
         }
@@ -270,15 +267,14 @@ class Prompt
      * Validate a set of items
      *
      * @param array|callable $validate
-     * @param string|array $input
-     * @param array|null $error
-     * @param-out null|string $error Error message or method that caused validation failure.
+     * @param mixed $input
+     * @param string|null $error
      * @return bool
      * @throws ErrorException
      */
-    protected function validateItems(array|callable $validate, string|array $input, ?array &$error = []): bool
+    protected function validateItems(array|callable $validate, mixed $input, ?string &$error = ""): bool
     {
-        $input = is_string($input) ? [$input] : $input;
+        $input = (!is_array($input)) ? [$input] : $input;
         foreach ($input as $value) {
             if (is_callable($validate)) {
                 $isValid = $validate($value);
