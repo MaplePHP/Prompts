@@ -26,18 +26,7 @@ require_once("{$dir}/vendor/autoload.php");
 use MaplePHP\Prompts\Prompt;
 use MaplePHP\Prompts\Command;
 use MaplePHP\Prompts\SttyWrapper;
-// Define ANSI escape sequences for colors
-$limeGreenBackground = "\033[102m";  // Bright green background
-$grayText = "\e[90m";              // Bright black (gray) text
-$reset = "\e[0m";                  // Reset colors
 
-// Custom message with padding
-$message = "  PASS  ";
-
-// Display the styled output in lime green with gray text
-echo "{$limeGreenBackground}{$grayText}{$message}{$reset} Tests\\Unit\\ExampleTest\n";
-
-die;
 $command = new Command();
 $inp = new Prompt();
 
@@ -86,7 +75,7 @@ $inp->set([
         }
     ],
     "message" => [
-        "type" => "message", // Will be exclude form the end result array!
+        "type" => "message", // Will be excluded form the end result array!
         "message" => "Lorem ipsum dolor",
     ],
     "select" => [
@@ -123,7 +112,7 @@ $inp->set([
     "confirm" => [
         "type" => "confirm",
         "message" => "Do you wish to continue?",
-        "confirm" => "Continuing.."
+        "confirm" => "Continuing..."
     ]
 ]);
 
