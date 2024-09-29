@@ -177,7 +177,7 @@ class Prompt
         if ($this->isEmpty($input)) {
             $input = $default;
         }
-        
+
         if (!(is_array($validate) || is_callable($validate))) {
             throw new InvalidArgumentException("The validate item is wrong input data type", 1);
         }
