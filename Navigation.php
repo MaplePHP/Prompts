@@ -10,7 +10,7 @@ use Exception;
  */
 class Navigation
 {
-    const HELPER_TEXT = "Use arrow keys to navigate and press (%s) to select item.";
+    public const HELPER_TEXT = "Use arrow keys to navigate and press (%s) to select item.";
 
     private Command $command;
     private int $index = 0;
@@ -32,10 +32,10 @@ class Navigation
 
     /**
      * Change exit key from default "Enter".
-     * 
+     *
      * @param string $key
      */
-    public function setAcceptKey(string $key): void 
+    public function setAcceptKey(string $key): void
     {
         $this->acceptKey = strtolower($key);
     }
@@ -43,10 +43,10 @@ class Navigation
     /**
      * Set a helper text that tells the user how it works.
      * You can add "%s" to your text which will represent the expected exit key.
-     * 
+     *
      * @example Text: Use arrow keys to navigate and press (%s) to select.
      * @example Usage: $this->setHelperText(self::HELPER_TEXT);
-     * 
+     *
      * @param string $text
      */
     public function setHelperText(string $text): void
@@ -63,7 +63,7 @@ class Navigation
      * @return void
      * @throws Exception
      */
-    public function navigation(string $message, array $items, callable $call): void 
+    public function navigation(string $message, array $items, callable $call): void
     {
         $this->values = array_keys($items);
         $this->items = array_values($items);
@@ -73,7 +73,7 @@ class Navigation
         $this->command->getStream()->write($this->command->getAnsi()->bold($message) . "\n");
         $call($this->index, $this->items);
         $this->streamHelperText();
-        $this->input(function() use ($call) {
+        $this->input(function () use ($call) {
             $call($this->index, $this->items);
             $this->streamHelperText();
         });
@@ -84,7 +84,7 @@ class Navigation
 
     /**
      * Get the interactive prompts value
-     * 
+     *
      * @return int|string
      */
     public function getValue(): int|string
@@ -97,10 +97,10 @@ class Navigation
 
     /**
      * Get the interactive prompts item
-     * 
+     *
      * @return string
      */
-    public function getItem(): string 
+    public function getItem(): string
     {
         return (string)($this->items[$this->index] ?? "");
     }
@@ -112,7 +112,7 @@ class Navigation
      * @return void
      * @throws Exception
      */
-    public function input(callable $call): void 
+    public function input(callable $call): void
     {
         while (true) {
             $input = $this->command->getStream()->read(3);
@@ -134,7 +134,7 @@ class Navigation
 
     /**
      * Get the expected navigation key
-     * 
+     *
      * @param string $key
      * @return string
      */
@@ -148,10 +148,10 @@ class Navigation
 
     /**
      * Get helper text if set/enabled
-     * 
+     *
      * @return void
      */
-    protected function streamHelperText(): void 
+    protected function streamHelperText(): void
     {
         if (is_string($this->helperText)) {
             $message = sprintf($this->helperText, ucfirst($this->getKeyName($this->acceptKey)));
@@ -162,11 +162,11 @@ class Navigation
 
     /**
      * Will escape breaks so they are show-able
-     * 
+     *
      * @param string $string
      * @return string
      */
-    protected function escBreaker(string $string): string 
+    protected function escBreaker(string $string): string
     {
         return str_replace(["\n", "\r", "\t"], ['\n', '\r', '\t'], $string);
     }

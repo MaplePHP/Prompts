@@ -25,7 +25,7 @@ class Ansi
 
     /**
      * Set one or more styles
-     * 
+     *
      * @param string|array|null $styles
      * @param string $message
      * @return string
@@ -52,15 +52,15 @@ class Ansi
      * @param bool $disableAnsi
      * @return self
      */
-    function disableAnsi(bool $disableAnsi): self
+    public function disableAnsi(bool $disableAnsi): self
     {
         $this->disableAnsi = $disableAnsi;
         return $this;
     }
-    
+
     /**
      * Set a custom ansi style
-     * 
+     *
      * @param int $ansiNum
      * @param string $message
      * @return string
@@ -91,7 +91,7 @@ class Ansi
 
     /**
      * Bold input
-     * 
+     *
      * @param string $message
      * @return string
      */
@@ -102,7 +102,7 @@ class Ansi
 
     /**
      * Italic input
-     * 
+     *
      * @param string $message
      * @return string
      */
@@ -112,30 +112,30 @@ class Ansi
     }
 
     /**
-     * White input color
+     * Black input text color
      *
      * @param string $message
      * @return string
      */
-    public function white(string $message): string
+    public function black(string $message): string
     {
-        return $this->ansiStyle(97, $message);
+        return $this->ansiStyle(30, $message);
     }
 
     /**
-     * Red input color
-     * 
+     * Red input text color
+     *
      * @param string $message
      * @return string
      */
     public function red(string $message): string
     {
-        return $this->ansiStyle(91, $message);
+        return $this->ansiStyle(31, $message);
     }
 
     /**
-     * Green input color
-     * 
+     * Green input text color
+     *
      * @param string $message
      * @return string
      */
@@ -145,8 +145,8 @@ class Ansi
     }
 
     /**
-     * Yellow input color
-     * 
+     * Yellow input text color
+     *
      * @param string $message
      * @return string
      */
@@ -156,29 +156,18 @@ class Ansi
     }
 
     /**
-     * Blue input color
-     * 
+     * Blue input text color
+     *
      * @param string $message
      * @return string
      */
     public function blue(string $message): string
     {
-        return $this->ansiStyle(94, $message);
+        return $this->ansiStyle(34, $message);
     }
 
     /**
-     * Blue input color
-     *
-     * @param string $message
-     * @return string
-     */
-    public function grey(string $message): string
-    {
-        return $this->ansiStyle(90, $message);
-    }
-
-    /**
-     * Magenta input color
+     * Magenta input text color
      *
      * @param string $message
      * @return string
@@ -189,7 +178,7 @@ class Ansi
     }
 
     /**
-     * Cyan input color
+     * Cyan input text color
      *
      * @param string $message
      * @return string
@@ -200,6 +189,141 @@ class Ansi
     }
 
     /**
+     * White input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function white(string $message): string
+    {
+        return $this->ansiStyle(37, $message);
+    }
+
+    /**
+     * Bright black (gray) input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightBlack(string $message): string
+    {
+        return $this->ansiStyle(90, $message);
+    }
+
+    /**
+     * Grey input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function grey(string $message): string
+    {
+        return $this->brightBlack($message);
+    }
+
+    /**
+     * Bright red input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightRed(string $message): string
+    {
+        return $this->ansiStyle(91, $message);
+    }
+
+    /**
+     * Bright green input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightGreen(string $message): string
+    {
+        return $this->ansiStyle(92, $message);
+    }
+
+    /**
+     * Bright yellow input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightYellow(string $message): string
+    {
+        return $this->ansiStyle(93, $message);
+    }
+
+    /**
+     * Bright blue input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightBlue(string $message): string
+    {
+        return $this->ansiStyle(94, $message);
+    }
+
+    /**
+     * Bright magenta input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightMagenta(string $message): string
+    {
+        return $this->ansiStyle(95, $message);
+    }
+
+    /**
+     * Bright cyan input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightCyan(string $message): string
+    {
+        return $this->ansiStyle(96, $message);
+    }
+
+    /**
+     * Bright white input text color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightWhite(string $message): string
+    {
+        return $this->ansiStyle(97, $message);
+    }
+
+    /**
+     * Set custom background
+     * @param int $int
+     * @param string $message
+     * @return string
+     */
+    public function bg(int $int, string $message): string
+    {
+        if(!$this->isSupported()) {
+            return "[$message]";
+        }
+        return $this->ansiStyle($int, $message);
+    }
+
+    /**
+     * Black input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function blackBg(string $message): string
+    {
+        return $this->bg(40, $message);
+    }
+
+    /**
      * Red input background color
      *
      * @param string $message
@@ -207,38 +331,7 @@ class Ansi
      */
     public function redBg(string $message): string
     {
-        if(!$this->isSupported()) {
-            return "[$message]";
-        }
-        return $this->ansiStyle(41, $message);
-    }
-
-    /**
-     * Yellow input background color
-     *
-     * @param string $message
-     * @return string
-     */
-    public function yellowBg(string $message): string
-    {
-        if(!$this->isSupported()) {
-            return "[$message]";
-        }
-        return $this->ansiStyle(43, $message);
-    }
-
-    /**
-     * Blue input background color
-     *
-     * @param string $message
-     * @return string
-     */
-    public function blueBg(string $message): string
-    {
-        if(!$this->isSupported()) {
-            return "[$message]";
-        }
-        return $this->ansiStyle(44, $message);
+        return $this->bg(41, $message);
     }
 
     /**
@@ -249,15 +342,166 @@ class Ansi
      */
     public function greenBg(string $message): string
     {
-        if(!$this->isSupported()) {
-            return "[$message]";
-        }
-        return $this->ansiStyle(42, $message);
+        return $this->bg(42, $message);
+    }
+
+    /**
+     * Yellow input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function yellowBg(string $message): string
+    {
+        return $this->bg(43, $message);
+    }
+
+    /**
+     * Blue input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function blueBg(string $message): string
+    {
+        return $this->bg(44, $message);
+    }
+
+    /**
+     * Magenta input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function magentaBg(string $message): string
+    {
+        return $this->bg(45, $message);
+    }
+
+    /**
+     * Cyan input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function cyanBg(string $message): string
+    {
+        return $this->bg(46, $message);
+    }
+
+    /**
+     * White input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function whiteBg(string $message): string
+    {
+        return $this->bg(47, $message);
+    }
+
+    /**
+     * Bright black (gray) input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightBlackBg(string $message): string
+    {
+        return $this->bg(100, $message);
+    }
+
+    /**
+     * Grey input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function greyBg(string $message): string
+    {
+        return $this->brightBlackBg($message);
+    }
+
+    /**
+     * Bright red input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightRedBg(string $message): string
+    {
+        return $this->bg(101, $message);
+    }
+
+    /**
+     * Bright green input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightGreenBg(string $message): string
+    {
+        return $this->bg(102, $message);
+    }
+
+    /**
+     * Bright yellow input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightYellowBg(string $message): string
+    {
+        return $this->bg(103, $message);
+    }
+
+    /**
+     * Bright blue input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightBlueBg(string $message): string
+    {
+        return $this->bg(104, $message);
+    }
+
+    /**
+     * Bright magenta input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightMagentaBg(string $message): string
+    {
+        return $this->bg(105, $message);
+    }
+
+    /**
+     * Bright cyan input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightCyanBg(string $message): string
+    {
+        return $this->bg(106, $message);
+    }
+
+    /**
+     * Bright white input background color
+     *
+     * @param string $message
+     * @return string
+     */
+    public function brightWhiteBg(string $message): string
+    {
+        return $this->bg(107, $message);
     }
 
     /**
      * Style selected item
-     * 
+     *
      * @param string $message
      * @return string
      */
@@ -326,7 +570,7 @@ class Ansi
      * @return string
      * @throws Exception
      */
-    public function keyUp(): string 
+    public function keyUp(): string
     {
         if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
@@ -340,7 +584,7 @@ class Ansi
      * @return string
      * @throws Exception
      */
-    public function keyDown(): string 
+    public function keyDown(): string
     {
         if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
@@ -350,10 +594,10 @@ class Ansi
 
     /**
      * Enter key
-     * 
+     *
      * @return string
      */
-    public function keyEnter(): string 
+    public function keyEnter(): string
     {
         return "\n";
     }
@@ -364,7 +608,7 @@ class Ansi
      * @return string
      * @throws Exception
      */
-    public function keyEscape(): string 
+    public function keyEscape(): string
     {
         if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
@@ -378,7 +622,7 @@ class Ansi
      * @return string
      * @throws Exception
      */
-    public function checkbox(): string 
+    public function checkbox(): string
     {
         if (!$this->isSupported()) {
             throw new Exception("Ansi not supported by OS", 1);
@@ -389,7 +633,7 @@ class Ansi
     /**
      * Check if terminal is modern (Not foolproof)
      * This function will tell if terminal support ANSI
-     * 
+     *
      * @return bool
      */
     final public function isSupported(): bool

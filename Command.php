@@ -27,7 +27,7 @@ class Command
 
     /**
      * Get stream
-     * 
+     *
      * @return StreamInterface
      */
     public function getStream(): StreamInterface
@@ -37,7 +37,7 @@ class Command
 
     /**
      * Get SttyWrapper
-     * 
+     *
      * @return SttyWrapper
      */
     public function getStty(): SttyWrapper
@@ -47,7 +47,7 @@ class Command
 
     /**
      * Get Ansi
-     * 
+     *
      * @return Ansi
      */
     public function getAnsi(): Ansi
@@ -57,7 +57,7 @@ class Command
 
     /**
      * Read line
-     * 
+     *
      * @param string $message
      * @return string
      */
@@ -73,7 +73,7 @@ class Command
 
     /**
      * Display a message
-     * 
+     *
      * @param string $message
      * @param bool $getLine Stop and get line
      * @return string|false
@@ -174,7 +174,7 @@ class Command
 
     /**
      * Display a non-interactive prompt with multiple options
-     * 
+     *
      * @param string $message
      * @param array $choices
      * @return int|string
@@ -242,7 +242,7 @@ class Command
 
     /**
      * Get a masked input if supported, otherwise get unmasked input
-     * 
+     *
      * @param string $message
      * @return string
      */
@@ -267,7 +267,7 @@ class Command
 
     /**
      * Display a confirmation prompt
-     * 
+     *
      * @param string $message
      * @return bool
      */
@@ -283,10 +283,10 @@ class Command
         }
         return $this->confirm($message);
     }
-    
+
     /**
      * Create a progress bar
-     * 
+     *
      * @param int $expectedRows The maximum expected rows
      * @param int $maxLength The maximum bar length
      * @param int|callable|null $sleep int for sleep in milliseconds (3000 ms = 1 second) or callback with returned int for sleep in milliseconds
@@ -314,7 +314,7 @@ class Command
 
     /**
      * Progress appearance
-     * 
+     *
      * @param string $char
      * @param float $i
      * @param float $length

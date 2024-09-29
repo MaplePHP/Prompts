@@ -1,6 +1,7 @@
 <?php
 
 namespace MaplePHP\Prompts;
+
 //use MaplePHP\Prompts\Command;
 use ErrorException;
 use Exception;
@@ -137,7 +138,7 @@ class Prompt
                 break;
             case "select":
                 if (!is_array($items)) {
-                   throw new InvalidArgumentException("The items must be an array!", 1);
+                    throw new InvalidArgumentException("The items must be an array!", 1);
                 }
                 $input = $this->command->select($message, $items);
                 break;
@@ -176,7 +177,7 @@ class Prompt
         if ($this->isEmpty($input)) {
             $input = $default;
         }
-        
+
         if (!(is_array($input) || is_string($input))) {
             throw new InvalidArgumentException("The input item is wrong input data type", 1);
         }
@@ -235,7 +236,7 @@ class Prompt
      *
      * @return void
      */
-    protected function getHeaderInfo(): void 
+    protected function getHeaderInfo(): void
     {
         if(!is_null($this->helperText)) {
             $this->command->message("\n" . $this->command->getAnsi()->italic($this->helperText . "\n"));
@@ -253,7 +254,7 @@ class Prompt
             $this->command->message("");
         }
     }
-    
+
     /**
      * Check if input is empty
      *

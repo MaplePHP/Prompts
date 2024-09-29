@@ -16,7 +16,7 @@ class SttyWrapper
 
     /**
      * Get command as string
-     * 
+     *
      * @return string
      */
     public function __toString(): string
@@ -26,7 +26,7 @@ class SttyWrapper
 
     /**
      * Get command as string
-     * 
+     *
      * @return string
      */
     public function get(): string
@@ -36,7 +36,7 @@ class SttyWrapper
 
     /**
      * Masking input
-     * 
+     *
      * @return self
      */
     public function maskInput(): self
@@ -46,29 +46,29 @@ class SttyWrapper
 
     /**
      * Turn on/off output stream
-     * 
+     *
      * @param bool $bool
      * @return self
      */
     public function toggleEcho(bool $bool): self
-    {        
+    {
         return $this->toggleEnable($bool, "echo");
     }
 
     /**
      * Toggle character break mode
-     * 
+     *
      * @param bool $bool
      * @return self
      */
     public function toggleCharBreakMode(bool $bool): self
-    {        
+    {
         return $this->toggleEnable($bool, "cbreak");
     }
 
     /**
      * Will listen to the input
-     * 
+     *
      * @return self
      */
     public function readInput(): self
@@ -78,7 +78,7 @@ class SttyWrapper
 
     /**
      * Toggle a custom command on/off
-     * 
+     *
      * @param bool $bool
      * @param string $command
      * @return self
@@ -90,7 +90,7 @@ class SttyWrapper
 
     /**
      * Execute a raw command
-     * 
+     *
      * @param string $input
      * @return self
      */
@@ -103,7 +103,7 @@ class SttyWrapper
 
     /**
      * Check if the OS is Unix-based
-     * 
+     *
      * @return bool
      */
     public function isUnix(): bool
@@ -120,7 +120,7 @@ class SttyWrapper
 
     /**
      * Check if stty is supported
-     * 
+     *
      * @return bool
      */
     public function hasSttySupport(): bool
