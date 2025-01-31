@@ -90,6 +90,18 @@ class Ansi
     }
 
     /**
+     * Get middot ANSI character
+     * @return string
+     */
+    public function middot(): string
+    {
+        if ($this->isSupported()) {
+            return "\u{2022}";
+        }
+        return ".";
+    }
+
+    /**
      * Bold input
      *
      * @param string $message
