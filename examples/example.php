@@ -23,9 +23,8 @@ if(!is_file("{$dir}/vendor/autoload.php")) {
 
 require_once("{$dir}/vendor/autoload.php");
 
-use MaplePHP\Prompts\Prompt;
 use MaplePHP\Prompts\Command;
-use MaplePHP\Prompts\SttyWrapper;
+use MaplePHP\Prompts\Prompt;
 
 $command = new Command();
 $inp = new Prompt();
@@ -123,7 +122,7 @@ try {
     });
     print_r($prompt);
 
-} catch (\MaplePHP\Prompts\PromptException $e) {
+} catch (\MaplePHP\Prompts\Exceptions\PromptException $e) {
     $command->error($e->getMessage());
 }
 

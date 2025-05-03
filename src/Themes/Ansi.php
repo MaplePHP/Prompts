@@ -1,6 +1,6 @@
 <?php
 
-namespace MaplePHP\Prompts;
+namespace MaplePHP\Prompts\Themes;
 
 use Exception;
 use InvalidArgumentException;
@@ -32,7 +32,7 @@ class Ansi
      */
     public function style(string|array|null $styles, string $message): string
     {
-        if(!is_null($styles)) {
+        if (!is_null($styles)) {
             if (is_string($styles)) {
                 $styles = [$styles];
             }
@@ -318,7 +318,7 @@ class Ansi
      */
     public function bg(int $int, string $message): string
     {
-        if(!$this->isSupported()) {
+        if (!$this->isSupported()) {
             return "[$message]";
         }
         return $this->ansiStyle($int, $message);
@@ -650,7 +650,7 @@ class Ansi
      */
     final public function isSupported(): bool
     {
-        if($this->disableAnsi) {
+        if ($this->disableAnsi) {
             $this->hasAnsi = false;
         }
         if (is_null($this->hasAnsi)) {

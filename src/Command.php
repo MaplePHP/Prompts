@@ -3,9 +3,10 @@
 namespace MaplePHP\Prompts;
 
 use Exception;
+use InvalidArgumentException;
 use MaplePHP\Http\Interfaces\StreamInterface;
 use MaplePHP\Http\Stream;
-use InvalidArgumentException;
+use MaplePHP\Prompts\Themes\Ansi;
 
 /**
  * Class Command
@@ -360,7 +361,7 @@ class Command
     protected function write(string $message, bool $break = true): void
     {
         $this->stream->write($message);
-        if($break) {
+        if ($break) {
             $this->stream->write("\n");
         }
     }
