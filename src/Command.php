@@ -21,7 +21,7 @@ class Command
     public function __construct(?StreamInterface $stream = null)
     {
         // This is the stream we want to use, 9/10 times
-        $this->stream = is_null($stream) ? new Stream(Stream::STDOUT) : $stream;
+        $this->stream = $stream === null ? new Stream(Stream::STDOUT) : $stream;
         $this->stty = new SttyWrapper();
         $this->ansi = new Ansi();
     }

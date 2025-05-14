@@ -238,7 +238,7 @@ class Prompt
      */
     protected function getHeaderInfo(): void
     {
-        if (!is_null($this->helperText)) {
+        if ($this->helperText !== null) {
             $this->command->message("\n" . $this->command->getAnsi()->italic($this->helperText . "\n"));
         }
 

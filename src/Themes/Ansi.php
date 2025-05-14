@@ -32,7 +32,7 @@ class Ansi
      */
     public function style(string|array|null $styles, string $message): string
     {
-        if (!is_null($styles)) {
+        if ($styles !== null) {
             if (is_string($styles)) {
                 $styles = [$styles];
             }
@@ -653,7 +653,7 @@ class Ansi
         if ($this->disableAnsi) {
             $this->hasAnsi = false;
         }
-        if (is_null($this->hasAnsi)) {
+        if ($this->hasAnsi === null) {
             if (stripos(PHP_OS, 'WIN') === 0) {
                 $this->hasAnsi = false;
             } else {
