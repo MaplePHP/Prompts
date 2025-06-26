@@ -27,6 +27,19 @@ class Command
     }
 
     /**
+     * With stream
+     *
+     * @param StreamInterface $stream
+     * @return $this
+     */
+    public function withStream(StreamInterface $stream): self
+    {
+        $new = clone $this;
+        $new->stream = $stream;
+        return $new;
+    }
+
+    /**
      * Get stream
      *
      * @return StreamInterface

@@ -10,6 +10,8 @@ class Blocks
     private array $options = [];
     private array $examples = [];
     private int $optionsLength = 0;
+    private array $list = [];
+    private int $listLength = 0;
 
 
     /**
@@ -50,6 +52,7 @@ class Blocks
             $inst = $description($this);
             if($inst instanceof self) {
                 $inst->writeOptionLines();
+                $inst->writeListLines();
                 $inst->writeExampleLines();
             }
         } else {
@@ -57,7 +60,62 @@ class Blocks
         }
     }
 
-    
+    /**
+     * Adds a code block
+     *
+     * @param string $code The description text or a callback function that returns an instance of this class
+     * @return void
+     */
+    public function addCode(string $code): void
+    {
+        $this->command->message("");
+        $this->command->message($this->command->getAnsi()->bold("Copy code below:"));;
+        $this->command->message("");
+        $this->command->message($this->addCodeStyle($code,  $this->command->getAnsi()));
+        $this->command->message("");
+    }
+
+    /**
+     * Apply syntax highlighting styling to PHP code using ANSI color codes
+     *
+     * @param string $code The PHP code to style
+     * @param Ansi $ansi The Ansi instance for color formatting
+     * @return string The styled code with ANSI color codes
+     */
+    function addCodeStyle(string $code, Ansi $ansi): string {
+        
+        // Keywords like "use", "function", "new"
+        $code = preg_replace_callback('/\b(use|function|new)\b/', function ($m) use ($ansi) {
+            return $ansi->blue($m[1]);
+        }, $code);
+
+        // Variables like $unit, $case, $valid
+        $code = preg_replace_callback('/(\$[a-zA-Z_]\w*)/', function ($m) use ($ansi) {
+            return $ansi->brightMagenta($m[1]);
+        }, $code);
+
+        // Strings like "Lorem ipsum"
+        $code = preg_replace_callback('/(["\'])(.*?)(\1)/', function ($m) use ($ansi) {
+            return $ansi->cyan($m[1] . $m[2] . $m[3]);
+        }, $code);
+
+        // Data types
+        $code = preg_replace_callback('/\b(callable|Closure|null|string|bool|float|int)\b/', function ($m) use ($ansi) {
+            return $ansi->yellow($m[1]);
+        }, $code);
+
+        $code = preg_replace_callback('/\b(Unit|TestCase|TestConfig|Expect)\b/', function ($m) use ($ansi) {
+            return $ansi->yellow($m[1]);
+        }, $code);
+
+        // Method names like ->validate(, ->isString( etc.
+        $code = preg_replace_callback('/->(\w+)\s*\(/', function ($m) use ($ansi) {
+            return '->' . $ansi->brightBlue($m[1]) . '(';
+        }, $code);
+
+        return $code;
+    }
+
     /**
      * Write formatted option lines with cyan styling and proper spacing
      * Used internally to output the stored options with aligned formatting
@@ -70,6 +128,22 @@ class Blocks
             $space2 = str_repeat(" ", ($this->optionsLength - strlen($key) + 5));
             $this->command->message(
                 $this->command->getAnsi()->cyan("{$this->space}--{$key}{$space2}{$value}")
+            );
+        }
+    }
+
+    /**
+     * Write formatted option lines with cyan styling and proper spacing
+     * Used internally to output the stored options with aligned formatting
+     *
+     * @return void
+     */
+    private function writeListLines(): void
+    {
+        foreach($this->list as $key => $value) {
+            $space2 = str_repeat(" ", ($this->listLength - strlen($key) + 5));
+            $this->command->message(
+                $this->command->getAnsi()->yellow("{$key}{$space2}{$value}")
             );
         }
     }
@@ -113,7 +187,27 @@ class Blocks
         }
         return $inst;
     }
-    
+
+
+    /**
+     * Add an option with its description to the command help output
+     * Returns a new instance of this class with the added option
+     *
+     * @param string $option The option name/flag to add
+     * @param string $description The description text for this option
+     * @return self New instance with the option added
+     */
+    public function addList(string $option, string $description): self
+    {
+        $inst = clone $this;
+        $length = strlen($option);
+        $inst->list[$option] = $description;
+        if($length > $inst->listLength) {
+            $inst->listLength = $length;
+        }
+        return $inst;
+    }
+
     /**
      * Add an example with optional description to the command help output
      * Returns a new instance of this class with the added example
