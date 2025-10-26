@@ -1,4 +1,5 @@
 <?php
+
 namespace MaplePHP\Prompts\Themes;
 
 use MaplePHP\Prompts\Command;
@@ -25,18 +26,18 @@ class Blocks
         $this->command = $command;
         $this->space = str_repeat(" ", 2);
     }
-    
+
     /**
      * Add a formatted headline with bold blue styling
-     * 
+     *
      * @param string $title The title text to display as a headline
      * @return void
      */
     public function addHeadline(string $title): void
     {
-        $this->command->message($this->command->getAnsi()->style(['bold', 'blue'],"{$title}"));
+        $this->command->message($this->command->getAnsi()->style(['bold', 'blue'], "{$title}"));
     }
-    
+
     /**
      * Add a new section with a title and description
      *
@@ -48,9 +49,9 @@ class Blocks
     {
         $this->command->message("");
         $this->command->message($this->command->getAnsi()->bold("{$title}:"));
-        if(is_callable($description)) {
+        if (is_callable($description)) {
             $inst = $description($this);
-            if($inst instanceof self) {
+            if ($inst instanceof self) {
                 $inst->writeOptionLines();
                 $inst->writeListLines();
                 $inst->writeExampleLines();
@@ -69,9 +70,7 @@ class Blocks
     public function addCode(string $code): void
     {
         $this->command->message("");
-        $this->command->message($this->command->getAnsi()->bold("Copy code below:"));;
-        $this->command->message("");
-        $this->command->message($this->addCodeStyle($code,  $this->command->getAnsi()));
+        $this->command->message($this->addCodeStyle($code, $this->command->getAnsi()));
         $this->command->message("");
     }
 
@@ -82,10 +81,11 @@ class Blocks
      * @param Ansi $ansi The Ansi instance for color formatting
      * @return string The styled code with ANSI color codes
      */
-    function addCodeStyle(string $code, Ansi $ansi): string {
-        
+    public function addCodeStyle(string $code, Ansi $ansi): string
+    {
+
         // Keywords like "use", "function", "new"
-        $code = preg_replace_callback('/\b(use|function|new)\b/', function ($m) use ($ansi) {
+        $code = preg_replace_callback('/\b(use|new)\b/', function ($m) use ($ansi) {
             return $ansi->blue($m[1]);
         }, $code);
 
@@ -101,17 +101,18 @@ class Blocks
 
         // Data types
         $code = preg_replace_callback('/\b(callable|Closure|null|string|bool|float|int)\b/', function ($m) use ($ansi) {
-            return $ansi->yellow($m[1]);
+            return $ansi->brightCyan($m[1]);
         }, $code);
 
         $code = preg_replace_callback('/\b(Unit|TestCase|TestConfig|Expect)\b/', function ($m) use ($ansi) {
-            return $ansi->yellow($m[1]);
+            return $ansi->brightCyan($m[1]);
         }, $code);
 
-        // Method names like ->validate(, ->isString( etc.
-        $code = preg_replace_callback('/->(\w+)\s*\(/', function ($m) use ($ansi) {
-            return '->' . $ansi->brightBlue($m[1]) . '(';
+        // Functions
+        $code = preg_replace_callback('/(\w+)\s*\(/', function ($m) use ($ansi) {
+            return $ansi->brightBlue($m[1]) . '(';
         }, $code);
+
 
         return $code;
     }
@@ -124,10 +125,10 @@ class Blocks
      */
     private function writeOptionLines(): void
     {
-        foreach($this->options as $key => $value) {
+        foreach ($this->options as $key => $value) {
             $space2 = str_repeat(" ", ($this->optionsLength - strlen($key) + 5));
             $this->command->message(
-                $this->command->getAnsi()->cyan("{$this->space}--{$key}{$space2}{$value}")
+                $this->command->getAnsi()->cyan("{$this->space}{$key}{$space2}{$value}")
             );
         }
     }
@@ -140,7 +141,7 @@ class Blocks
      */
     private function writeListLines(): void
     {
-        foreach($this->list as $key => $value) {
+        foreach ($this->list as $key => $value) {
             $space2 = str_repeat(" ", ($this->listLength - strlen($key) + 5));
             $this->command->message(
                 $this->command->getAnsi()->yellow("{$key}{$space2}{$value}")
@@ -148,7 +149,7 @@ class Blocks
         }
     }
 
-    
+
     /**
      * Write formatted example lines with yellow styling for keys and grey italic for values
      * Used internally to output the stored examples with proper formatting and indentation
@@ -157,18 +158,18 @@ class Blocks
      */
     private function writeExampleLines(): void
     {
-        foreach($this->examples as $key => $value) {
+        foreach ($this->examples as $key => $value) {
             $this->command->message(
                 $this->command->getAnsi()->style(['yellow'], "{$this->space}{$key}")
             );
-            if($value) {
+            if ($value) {
                 $this->command->message(
                     $this->command->getAnsi()->style(['grey', 'italic'], "{$this->space}{$this->space}{$value}")
                 );
             }
         }
     }
-    
+
     /**
      * Add an option with its description to the command help output
      * Returns a new instance of this class with the added option
@@ -182,7 +183,7 @@ class Blocks
         $inst = clone $this;
         $length = strlen($option);
         $inst->options[$option] = $description;
-        if($length > $inst->optionsLength) {
+        if ($length > $inst->optionsLength) {
             $inst->optionsLength = $length;
         }
         return $inst;
@@ -202,7 +203,7 @@ class Blocks
         $inst = clone $this;
         $length = strlen($option);
         $inst->list[$option] = $description;
-        if($length > $inst->listLength) {
+        if ($length > $inst->listLength) {
             $inst->listLength = $length;
         }
         return $inst;

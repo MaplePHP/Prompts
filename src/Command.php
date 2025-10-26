@@ -4,9 +4,10 @@ namespace MaplePHP\Prompts;
 
 use Exception;
 use InvalidArgumentException;
-use MaplePHP\Http\Interfaces\StreamInterface;
 use MaplePHP\Http\Stream;
 use MaplePHP\Prompts\Themes\Ansi;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Class Command
@@ -18,10 +19,13 @@ class Command
     private SttyWrapper $stty;
     private Ansi $ansi;
 
-    public function __construct(?StreamInterface $stream = null)
+    public function __construct(StreamInterface|ResponseInterface|null $stream = null)
     {
         // This is the stream we want to use, 9/10 times
+
+        $stream = ($stream instanceof ResponseInterface) ? $stream->getBody() : $stream;
         $this->stream = $stream === null ? new Stream(Stream::STDOUT) : $stream;
+
         $this->stty = new SttyWrapper();
         $this->ansi = new Ansi();
     }
