@@ -13,6 +13,8 @@ class Blocks
     private int $optionsLength = 0;
     private array $list = [];
     private int $listLength = 0;
+    private array $table = [];
+    private int $tableLength = 0;
 
 
     /**
@@ -31,24 +33,57 @@ class Blocks
      * Add a formatted headline with bold blue styling
      *
      * @param string $title The title text to display as a headline
+     * @param string $color
      * @return void
      */
-    public function addHeadline(string $title): void
+    public function addHeadline(string $title, string $color = "blue"): void
     {
-        $this->command->message($this->command->getAnsi()->style(['bold', 'blue'], "{$title}"));
+        $this->command->message($this->command->getAnsi()->style(['bold', $color], "{$title}"));
+    }
+
+    /**
+     * Add a formatted headline with bold blue styling
+     *
+     * @param string $title The title text to display as a headline
+     * @param string|null $color
+     * @return void
+     */
+    public function addText(string $title, ?string $color = null): void
+    {
+        if($color === null) {
+            $this->command->message($title);
+        } else {
+            $this->command->message($this->command->getAnsi()->style([$color], "{$title}"));
+        }
+    }
+
+    /**
+     * Add padding around
+     *
+     * @param callable $content
+     * @return void
+     */
+    public function addPadding(callable $content): void
+    {
+        $this->command->message("");
+        $content($this);
+        $this->command->message("");
     }
 
     /**
      * Add a new section with a title and description
      *
-     * @param string $title The title of the section
+     * @param string|null $title The title of the section
      * @param string|callable $description The description text or a callback function that returns an instance of this class
      * @return void
      */
-    public function addSection(string $title, string|callable $description): void
+    public function addSection(?string $title, string|callable $description): void
     {
-        $this->command->message("");
-        $this->command->message($this->command->getAnsi()->bold("{$title}:"));
+
+        if($title !== null) {
+            $this->command->message("");
+            $this->command->message($this->command->getAnsi()->bold("{$title}:"));
+        }
         if (is_callable($description)) {
             $inst = $description($this);
             if ($inst instanceof self) {
@@ -59,6 +94,37 @@ class Blocks
         } else {
             $this->command->message("{$this->space}{$description}");
         }
+    }
+
+    /**
+     * Get severity in with a severity color
+     *
+     * @param string $severity
+     * @param string|null $title
+     * @return string
+     */
+    public function severityLevel(string $severity, ?string $title = null): string
+    {
+        switch (strtolower($severity)) {
+            case 'low':
+                return $this->command->getAnsi()->brightBlue($title ?? 'Low');
+            case 'medium':
+                return $this->command->getAnsi()->yellow($title ?? 'Medium');
+        }
+
+        return $this->command->getAnsi()->brightRed($title ?? 'High');
+    }
+
+    /**
+     * Create a row for cell
+     * @param callable $description
+     * @return void
+     */
+    public function addRow(callable $description): void
+    {
+        $inst = clone $this;
+        $inst = $description($inst);
+        $inst->writeTableLines();
     }
 
     /**
@@ -149,6 +215,44 @@ class Blocks
         }
     }
 
+    /**
+     * Write formatted option lines with cyan styling and proper spacing
+     * Used internally to output the stored options with aligned formatting
+     *
+     * @return void
+     */
+    private function writeTableLines(): void
+    {
+        $lineLength = 0;
+        $row = $this->buildRowsAndCells($this->table, $this->tableLength, $lineLength);
+        foreach ($row as $value) {
+            $this->command->message($value);
+
+        }
+        $this->command->message(" ");
+    }
+
+    private function buildRowsAndCells(array $arr, int $length, int &$lineLength): array
+    {
+        $row = [];
+        $lineLength = 0;
+        foreach ($arr as $value) {
+            $col1 = $value[0];
+            $col2 = $value[1];
+            $space2 = str_repeat(" ", ($length - strlen($col1) + 5));
+
+            $title = "{$col1}{$space2}";
+            $title = $this->command->getAnsi()->style(["greyBg", "bold"], $title);
+
+            $out = "{$title} {$col2}";
+            $row[] = $out;
+            if(strlen($out) > $lineLength) {
+                $lineLength = strlen($out);
+            }
+        }
+        return $row;
+    }
+
 
     /**
      * Write formatted example lines with yellow styling for keys and grey italic for values
@@ -189,7 +293,6 @@ class Blocks
         return $inst;
     }
 
-
     /**
      * Add an option with its description to the command help output
      * Returns a new instance of this class with the added option
@@ -207,6 +310,24 @@ class Blocks
             $inst->listLength = $length;
         }
         return $inst;
+    }
+
+    /**
+     * Add an option with its description to the command help output
+     * Returns a new instance of this class with the added option
+     *
+     * @param string $option The option name/flag to add
+     * @param string $description The description text for this option
+     * @return self New instance with the option added
+     */
+    public function addCell(string $option, string $description): self
+    {
+        $length = strlen($option);
+        $this->table[] = [$option, $description];
+        if ($length > $this->tableLength) {
+            $this->tableLength = $length;
+        }
+        return $this;
     }
 
     /**
