@@ -58,6 +58,16 @@ class Blocks
     }
 
     /**
+     * Add vertical spacing of one line break
+     *
+     * @return void
+     */
+    public function addSpace(): void
+    {
+        $this->command->message("");
+    }
+
+    /**
      * Add padding around
      *
      * @param callable $content
@@ -65,9 +75,9 @@ class Blocks
      */
     public function addPadding(callable $content): void
     {
-        $this->command->message("");
+        $this->addSpace();
         $content($this);
-        $this->command->message("");
+        $this->addSpace();
     }
 
     /**
