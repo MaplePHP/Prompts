@@ -33,27 +33,27 @@ class Blocks
      * Add a formatted headline with bold blue styling
      *
      * @param string $title The title text to display as a headline
-     * @param string $color
+     * @param string $addStyle
      * @return void
      */
-    public function addHeadline(string $title, string $color = "blue"): void
+    public function addHeadline(string $title, string $addStyle = "blue"): void
     {
-        $this->command->message($this->command->getAnsi()->style(['bold', $color], "{$title}"));
+        $this->command->message($this->command->getAnsi()->style(['bold', $addStyle], "{$title}"));
     }
 
     /**
-     * Add a formatted headline with bold blue styling
+     * Add a text
      *
      * @param string $title The title text to display as a headline
-     * @param string|null $color
+     * @param string|null $addStyle
      * @return void
      */
-    public function addText(string $title, ?string $color = null): void
+    public function addText(string $title, ?string $addStyle = null): void
     {
-        if($color === null) {
+        if($addStyle === null) {
             $this->command->message($title);
         } else {
-            $this->command->message($this->command->getAnsi()->style([$color], "{$title}"));
+            $this->command->message($this->command->getAnsi()->style([$addStyle], "{$title}"));
         }
     }
 
