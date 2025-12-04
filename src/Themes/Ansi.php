@@ -90,6 +90,23 @@ class Ansi
     }
 
     /**
+     * Create a dashed line
+     *
+     * @param int $lineLength
+     * @param int $color
+     * @return string
+     */
+    public function dashedLine(int $lineLength, int $color = 90): string
+    {
+        $thin = $this->supportsUnicode() ? "\u{200A}" : "";
+        $line = str_repeat("─$thin", round($lineLength/2));
+        if ($this->isSupported()) {
+            return "\033[1;{$color}m$line\033[0m";
+        }
+        return $line;
+    }
+
+    /**
      * Get middot ANSI character
      * @return string
      */
@@ -642,9 +659,20 @@ class Ansi
         return "\xE2\x9C\x94";
     }
 
+
     /**
-     * Check if terminal is modern (Not foolproof)
-     * This function will tell if terminal support ANSI
+     * Detects if the terminal can reliably handle Unicode output.
+     *
+     * @return bool
+     */
+    final public  function supportsUnicode(): bool
+    {
+        return function_exists('mb_internal_encoding') && mb_internal_encoding() === 'UTF-8';
+    }
+
+    /**
+     * Check if the terminal is modern (Not foolproof),
+     * This function will tell if the terminal supports ANSI
      *
      * @return bool
      */
