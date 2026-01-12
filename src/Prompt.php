@@ -2,11 +2,11 @@
 
 namespace MaplePHP\Prompts;
 
-//use MaplePHP\Prompts\Command;
 use ErrorException;
 use Exception;
-use MaplePHP\Validate\Inp;
 use InvalidArgumentException;
+use MaplePHP\Prompts\Exceptions\PromptException;
+use MaplePHP\Validate\Validator;
 
 class Prompt
 {
@@ -25,7 +25,7 @@ class Prompt
     }
 
     /**
-     * Get command instance
+     * Get a command instance
      *
      * @return Command
      */
@@ -99,7 +99,9 @@ class Prompt
      *
      * @param array $row
      * @return mixed
+     * @throws ErrorException
      * @throws PromptException
+     * @throws \MaplePHP\Prompts\PromptException
      * @throws Exception
      */
     public function promptLine(array $row): mixed
@@ -153,13 +155,13 @@ class Prompt
                 }
                 break;
             case "continue":
-                if(is_callable($items)) {
+                if (is_callable($items)) {
                     $items = $items($this->prevVal, $this->index);
-                    if($items === false) {
+                    if ($items === false) {
                         return true;
                     }
                 }
-                if(!is_array($items)) {
+                if (!is_array($items)) {
                     throw new InvalidArgumentException("The items must return a a valid array");
                 }
                 $inst = new self();
@@ -199,20 +201,21 @@ class Prompt
     }
 
     /**
-     * Prompt output and get result as array or false if aborted
+     * Prompt output and get the result as an array or false if aborted
      *
      * @return array|false
-     * @throws PromptException
+     * @throws ErrorException
+     * @throws PromptException|\MaplePHP\Prompts\PromptException
      */
     public function prompt(): array|false
     {
         $result = [];
         $this->index = 0;
-        if(!$this->disableHeaderInfo) {
+        if (!$this->disableHeaderInfo) {
             $this->getHeaderInfo();
         }
         foreach ($this->data as $name => $row) {
-            if(!is_array($row)) {
+            if (!is_array($row)) {
                 throw new PromptException("The data array has to return an array!", 1);
             }
             $input = $this->promptLine($row);
@@ -235,7 +238,7 @@ class Prompt
      */
     protected function getHeaderInfo(): void
     {
-        if(!is_null($this->helperText)) {
+        if ($this->helperText !== null) {
             $this->command->message("\n" . $this->command->getAnsi()->italic($this->helperText . "\n"));
         }
 
@@ -253,7 +256,7 @@ class Prompt
     }
 
     /**
-     * Check if input is empty
+     * Check if the input is empty
      *
      * @param mixed $input
      * @return bool
@@ -310,7 +313,7 @@ class Prompt
      */
     final protected function validate(string $value, string $method, array $args = []): bool
     {
-        $inp = new Inp($value);
+        $inp = new Validator($value);
         if (!method_exists($inp, $method)) {
             throw new InvalidArgumentException("The validation method \"$method\" does not exist", 1);
         }

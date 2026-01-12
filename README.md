@@ -32,7 +32,7 @@ Below is an example demonstrating how to use the PHP Prompts library to create i
 1. **Initialize**
 
 ```php
-$prompt = new MaplePHP\Prompts\Prompt();
+$prompt = new \MaplePHP\Prompts\Prompt();
 ```
 
 2. **Set the Title and Description for the Prompts**
@@ -278,7 +278,7 @@ These prompt types enable a variety of user interactions in a CLI environment, m
 You also execute some of the prompt above command directly with the Command class.
 
 ```php
-$command = new MaplePHP\Prompts\Command();
+$command = new \MaplePHP\Prompts\Command();
 // Print messages and return input
 $input = $command->message("Text field", true);
 $input = $command->mask("Masked input (password)");
@@ -302,7 +302,7 @@ $command->approve("Print red error message");
 The `progress` method of the `Command` class allows displaying a progress bar with customizable sleep intervals to indicate ongoing operations.
 
 ```php
-$command = new MaplePHP\Prompts\Command();
+$command = new \MaplePHP\Prompts\Command();
 $command->progress(1, 100, function($i, $length) {
     return 20;
 });

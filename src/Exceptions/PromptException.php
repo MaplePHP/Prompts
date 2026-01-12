@@ -1,6 +1,6 @@
 <?php
 
-namespace MaplePHP\Prompts;
+namespace MaplePHP\Prompts\Exceptions;
 
 use Exception;
 
